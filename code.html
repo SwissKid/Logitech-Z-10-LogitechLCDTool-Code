@@ -68,6 +68,8 @@
             var rating = "";
             var stars ="";
             var currentTrack ="";
+            var shuffley = "";
+            var shufflestatus = "";
             
             //================== MAIL VARS ==================
             var newMailCount;
@@ -392,12 +394,12 @@
                     if (button == "Softkey1") {
                         window.application.runUserScript('shuffleOn'); 
                         mainText = "iTunes is now shuffling<br><br> ";
-                        rating = window.application.runUserScript('getRating'); 
+                        shufflestatus = window.application.runUserScript('shuffle'); 
                     }
                     if (button == "Softkey2") {
                         window.application.runUserScript('shuffleOff'); 
                         mainText = "iTunes has stopped shuffling<br><br> ";
-                        rating = window.application.runUserScript('getRating'); 
+                        shufflestatus = window.application.runUserScript('shuffle'); 
                     }
                     if (button == "Softkey3") {
                         window.application.runUserScript('rateThree'); 
@@ -627,41 +629,48 @@
                 setText('remaining', formatTime((itunes['duration'])-(itunes['position']))); 
                 var thisArtist = (itunes['artist']); 
                 thisArtist = thisArtist.replace(/\'/," ");
+                                                //itunes shuffle control
+                                                shufflestatus=application.runUserScript('shuffle');
+                                                if ( shufflestatus == "true" ) {
+                                                shuffley = "Shuffling";
+                                                } else if ( shufflestatus == "false" ){
+                                                shuffley = "Not Shuffling";                                        
+                                                }
                                                 var thisTrack = (itunes['name']);
                                                 thisTrack = thisTrack.replace(/\'/," ");
                                                                               
-                                                                              // has the track changed? if so refresh the rating
+                                                                              // has the track changed? if so refresh the shuffle
                                                                               if (thisTrack != currentTrack) {
-                                                                              rating = window.application.runUserScript('getRating');
+                                                                              shufflestatus = window.application.runUserScript('shuffle');
                                                                               currentTrack = thisTrack
                                                                               }
-                                                                              
-                                                                              // humanise ratings
-                                                                              if (rating == "100") { 
-                                                                              stars = "*****";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                                              } else if (rating == "80") { 
-                                                                              // special case, switch 4 rating button to 5
-                                                                              stars = "****-";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">*****</td></tr></table>';
-                                                                              } else if (rating == "60") { 
-                                                                              stars = "***--";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                                              } else if (rating == "40") { 
-                                                                              stars = "**---";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                                              } else if (rating == "20") { 
-                                                                              stars = "*----";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                                              } else { 
-                                                                              stars = "unrated";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                                              }
+                                                                              //                                                                              
+                                                                              //                                                                              // humanise ratings
+                                                                              //                                                                              if (rating == "100") { 
+                                                                              //                                                                              stars = "*****";
+                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              //                                                                              } else if (rating == "80") { 
+                                                                              //                                                                              // special case, switch 4 rating button to 5
+                                                                              //                                                                              stars = "****-";
+                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">*****</td></tr></table>';
+                                                                              //                                                                              } else if (rating == "60") { 
+                                                                              //                                                                              stars = "***--";
+                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              //                                                                              } else if (rating == "40") { 
+                                                                              //                                                                              stars = "**---";
+                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              //                                                                              } else if (rating == "20") { 
+                                                                              //                                                                              stars = "*----";
+                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              //                                                                              } else { 
+                                                                              //                                                                              stars = "unrated";
+                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              //                                                                              }
                                                                               
                                                                               /* storing the indicator icons here till they are implemented:
                                                                                <img id="mail" src="data:image/gif;base64,R0lGODlhCQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAJAAUAAAILjI8BuwfaHlQzoQIAOw%3D%3D" /><img id="mute" src="data:image/gif;base64,R0lGODlhBQAFAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAAFAAUAAAIIDB4GaZ2oVgEAOw%3D%3D" /><img id="pause" src="data:image/gif;base64,R0lGODlhBQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAFAAUAAAIHTGCGuZpnCgA7" /><img id="play" src="data:image/gif;base64,R0lGODlhBQAFAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAAFAAUAAAIIDIJ2CM1rUgEAOw%3D%3D" /> */
                                                                               
-                                                                              mainText = thisArtist + '<span class="right"> [' + stars + "]</span>" + "<br>" + thisTrack;
+                                                                              mainText = thisArtist + '<span class="right"> ' + shuffley  + "</span>" + "<br>" + thisTrack;
                                                                               $('diamond').style.left = ((Math.floor(90 / itunes['duration'] * itunes['position']))+34) + 'px'; 
                                                                               }
                                                                               
@@ -847,6 +856,7 @@
                                                                               window.application.registerUserScript('rateThree', 'tell application "iTunes"  to set rating of current track to 60');
                                                                               window.application.registerUserScript('rateFour', 'tell application "iTunes"  to set rating of current track to 80');
                                                                               window.application.registerUserScript('rateFive', 'tell application "iTunes"  to set rating of current track to 100');
+                                                                              window.application.registerUserScript('shuffle', 'tell application "iTunes" to return shuffle of current playlist');
                                                                               
                                                                               // mail scripts
                                                                               window.application.registerUserScript('checkMail', 'tell application "Mail" to set unread to unread count of inbox as string');
@@ -883,7 +893,7 @@
                                                                               
                                                                               
                                                                               
-            </script> 
+                                                                              </script> 
         <style type="text/css"> 
             /* to do : sort this mess */
             #top {overflow: hidden; margin-left: 1px; margin-top: 1px; font-family: FrucadeSmall; font-size:8px; text-align: left;} 

@@ -392,14 +392,19 @@
                 } else if (currentScreen == 'tunesc') {
                     //================== ITUNES SCREEN BUTTONS
                     if (button == "Softkey1") {
-                        window.application.runUserScript('shuffleOn'); 
-                        mainText = "iTunes is now shuffling<br><br> ";
-                        shufflestatus = window.application.runUserScript('shuffle'); 
+                        if (shufflestatus == "false") {
+                            window.application.runUserScript('shuffleOn'); 
+                            mainText = "iTunes is now shuffling<br><br> ";
+                            shufflestatus = window.application.runUserScript('shuffle'); 
+                        } else {
+                            window.application.runUserScript('shuffleOff'); 
+                            mainText = "iTunes has stopped shuffling<br><br> ";
+                            shufflestatus = window.application.runUserScript('shuffle'); 
+                        }
+                       
                     }
                     if (button == "Softkey2") {
-                        window.application.runUserScript('shuffleOff'); 
-                        mainText = "iTunes has stopped shuffling<br><br> ";
-                        shufflestatus = window.application.runUserScript('shuffle'); 
+                        
                     }
                     if (button == "Softkey3") {
                         window.application.runUserScript('rateThree'); 
@@ -633,11 +638,14 @@
                                                 shufflestatus=application.runUserScript('shuffle');
                                                 if ( shufflestatus == "true" ) {
                                                 shuffley = "Shuffling";
+                                                currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle Off</td><td class="buttons"></td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
                                                 } else if ( shufflestatus == "false" ){
                                                 shuffley = "Not Shuffling";                                        
+                                                currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons"></td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
                                                 }
                                                 var thisTrack = (itunes['name']);
                                                 thisTrack = thisTrack.replace(/\'/," ");
+                                            
                                                                               
                                                                               // has the track changed? if so refresh the shuffle
                                                                               if (thisTrack != currentTrack) {

@@ -358,7 +358,7 @@
                         if (button == "Softkey1") {
                             mainText = "iTunes";
                             currentScreen = "tunesc";
-                            currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                            currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle</td><td class="buttons">Repeat</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
                             application.runSystemScript('iTunesPlay'); 
                         }
                         if (button == "Softkey2") {
@@ -401,507 +401,539 @@
                             mainText = "iTunes has stopped shuffling<br><br> ";
                             shufflestatus = window.application.runUserScript('shuffle'); 
                         }
-                       
-                    }
-                    if (button == "Softkey2") {
                         
                     }
-                    if (button == "Softkey3") {
-                        window.application.runUserScript('rateThree'); 
-                        mainText = "Current Track rated ***--<br> ";
-                        rating = window.application.runUserScript('getRating'); 
-                    }
-                    if (button == "Softkey4") {
-                        if (rating == 80) {
-                            window.application.runUserScript('rateFive'); 
-                            mainText = "Current Track rated *****<br> ";
-                            rating = window.application.runUserScript('getRating');
-                        } else {
-                            window.application.runUserScript('rateFour'); 
-                            mainText = "Current Track rated ****-<br> ";
-                            rating = window.application.runUserScript('getRating');
+                    if (button == "Softkey2") {
+//                        TO DO -- Install functionality to repeat one
+                        if (repeaty == "krp1" ){
+                            window.application.runUserScript('repeatoff');
+                            mainText = "iTunes is no longer repeating<br><br>";
                         }
-                    }
-                    if (button == "Display") {
-                        mainText = "Date and Time<br>Weather Report";
-                        dateNtime();
-                        currentScreen = "main";
-                        currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
-                        $('progressbar').style.display = 'none';
-                        $('progress').style.display = 'none';
-                    }
-                    
-                } else if (currentScreen == 'mailsc') {
-                    //================== MAIL SCREEN BUTTONS
-                    if (button == "Softkey1") {
-                        mainText = "Getting new mail";
-                        window.application.runUserScript('getMail'); // to do : scroll message summaries
-                    }
-                    if (button == "Softkey2") {
-                        mainText = "opening current message"; // to do : open the currently scrolling message
-                        window.application.runUserScript('openMail'); 
-                    }
-                    if (button == "Softkey3") {
-                        mainText = "marking as junk<br>(not implemented yet)"; // to do : junk the currently scrolling message
-                    }
-                    if (button == "Softkey4") {
-                        mainText = "opening current feed<br>(not implemented yet)"; // to do : scroll rss feeds needs doing first
-                    }
-                    if (button == "Display") {
-                        mainText = "Date and Time<br>Weather Report";
-                        dateNtime();
-                        currentScreen = "main";
-                        currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
-                        $('scrollbox').style.display = 'none';
-                    }
-                    
-                } else if (currentScreen == 'systemsc') {
-                    //================== SYSTEM SCREEN BUTTONS
-                    if (button == "Softkey1") {
-                        subScreen = "cpu";
-                        currentControls = '<table width=160px><tr><td class="buttonleft"><span class="selected">cpu</span></td><td class="buttons">hot apps</td><td class="buttonright">disks</td><td class="buttonright">uptime</td></tr></table>';
-                    }
-                    if (button == "Softkey2") {
-                        mainText = "Top 3 Apps";
-                        subScreen = "hotapps";
-                        currentControls = '<table width=160px><tr><td class="buttonleft">cpu</td><td class="buttons"><span class="selected">hot apps</span></td><td class="buttonright">disks</td><td class="buttonright">uptime</td></tr></table>';
-                        showHotAppsOverlay();
-                    }
-                    if (button == "Softkey3") {
-                        mainText = "Checking Disk Space,<br> One moment please...";
-                        subScreen = "disks";
-                        currentControls = '<table width=160px><tr><td class="buttonleft">cpu</td><td class="buttons">hot apps</td><td class="buttonright"><span class="selected">disks</span></td><td class="buttonright">uptime</td></tr></table>';
-                        showFSOverlay(); // to do : formatting and memory usage
-                    }
-                    if (button == "Softkey4") {
-                        mainText = "One moment...<br />Data will refresh every 5 seconds";
-                        refreshCounter = 2;
-                        subScreen = "uptime";
-                        currentControls = '<table width=160px><tr><td class="buttonleft">cpu</td><td class="buttons">hot apps</td><td class="buttonright">disks</td><td class="buttonright"><span class="selected">uptime</span></td></tr></table>';
-                    }
-                    if (button == "Display") {
-                        mainText = "Date and Time<br>Weather Report";
-                        dateNtime();
-                        currentScreen = "main";
-                        currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
-                        if (alwaysLogSystem != "true") { // if we're not logging all the time we need to reset existing cpu data to zero
-                            c1 = c2 = c3 = c4 = c5 = c6 = c7 = c8 = c9 = c10 = c11 = c12 = c13 = c14 = c15 = c16 = c17 = c18 = c19 = c20 = c21 = c22 = c23 = c24 = c25 = c26 = c27 = c28 = c28 = c29 = c30 = c31 = c32 = c33 = c33 = c34 = c35 = c36 = c37 = c38 = c39 = c40 = c41 = c42 = emptyP;
+                        else {
+                            window.application.runUserScript('repeatall');
+                            mainText = "iTunes is now repeating this playlist<br><br>";
                         }
+                        repeatstatus = application.runUserScript('repeat');
+                    }
+                        if (button == "Softkey3") {
+                            window.application.runUserScript('rateThree'); 
+                            mainText = "Current Track rated ***--<br> ";
+                            rating = window.application.runUserScript('getRating'); 
+                        }
+                        if (button == "Softkey4") {
+                            if (rating == 80) {
+                                window.application.runUserScript('rateFive'); 
+                                mainText = "Current Track rated *****<br> ";
+                                rating = window.application.runUserScript('getRating');
+                            } else {
+                                window.application.runUserScript('rateFour'); 
+                                mainText = "Current Track rated ****-<br> ";
+                                rating = window.application.runUserScript('getRating');
+                            }
+                        }
+                        if (button == "Display") {
+                            mainText = "Date and Time<br>Weather Report";
+                            dateNtime();
+                            currentScreen = "main";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                            $('progressbar').style.display = 'none';
+                            $('progress').style.display = 'none';
+                        }
+                        
+                    } else if (currentScreen == 'mailsc') {
+                        //================== MAIL SCREEN BUTTONS
+                        if (button == "Softkey1") {
+                            mainText = "Getting new mail";
+                            window.application.runUserScript('getMail'); // to do : scroll message summaries
+                        }
+                        if (button == "Softkey2") {
+                            mainText = "opening current message"; // to do : open the currently scrolling message
+                            window.application.runUserScript('openMail'); 
+                        }
+                        if (button == "Softkey3") {
+                            mainText = "marking as junk<br>(not implemented yet)"; // to do : junk the currently scrolling message
+                        }
+                        if (button == "Softkey4") {
+                            mainText = "opening current feed<br>(not implemented yet)"; // to do : scroll rss feeds needs doing first
+                        }
+                        if (button == "Display") {
+                            mainText = "Date and Time<br>Weather Report";
+                            dateNtime();
+                            currentScreen = "main";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                            $('scrollbox').style.display = 'none';
+                        }
+                        
+                    } else if (currentScreen == 'systemsc') {
+                        //================== SYSTEM SCREEN BUTTONS
+                        if (button == "Softkey1") {
+                            subScreen = "cpu";
+                            currentControls = '<table width=160px><tr><td class="buttonleft"><span class="selected">cpu</span></td><td class="buttons">hot apps</td><td class="buttonright">disks</td><td class="buttonright">uptime</td></tr></table>';
+                        }
+                        if (button == "Softkey2") {
+                            mainText = "Top 3 Apps";
+                            subScreen = "hotapps";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">cpu</td><td class="buttons"><span class="selected">hot apps</span></td><td class="buttonright">disks</td><td class="buttonright">uptime</td></tr></table>';
+                            showHotAppsOverlay();
+                        }
+                        if (button == "Softkey3") {
+                            mainText = "Checking Disk Space,<br> One moment please...";
+                            subScreen = "disks";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">cpu</td><td class="buttons">hot apps</td><td class="buttonright"><span class="selected">disks</span></td><td class="buttonright">uptime</td></tr></table>';
+                            showFSOverlay(); // to do : formatting and memory usage
+                        }
+                        if (button == "Softkey4") {
+                            mainText = "One moment...<br />Data will refresh every 5 seconds";
+                            refreshCounter = 2;
+                            subScreen = "uptime";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">cpu</td><td class="buttons">hot apps</td><td class="buttonright">disks</td><td class="buttonright"><span class="selected">uptime</span></td></tr></table>';
+                        }
+                        if (button == "Display") {
+                            mainText = "Date and Time<br>Weather Report";
+                            dateNtime();
+                            currentScreen = "main";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                            if (alwaysLogSystem != "true") { // if we're not logging all the time we need to reset existing cpu data to zero
+                                c1 = c2 = c3 = c4 = c5 = c6 = c7 = c8 = c9 = c10 = c11 = c12 = c13 = c14 = c15 = c16 = c17 = c18 = c19 = c20 = c21 = c22 = c23 = c24 = c25 = c26 = c27 = c28 = c28 = c29 = c30 = c31 = c32 = c33 = c33 = c34 = c35 = c36 = c37 = c38 = c39 = c40 = c41 = c42 = emptyP;
+                            }
+                        }
+                        
+                    } else if (currentScreen == 'consolesc') {
+                        //================== LOG SCREEN BUTTONS
+                        if (button == "Softkey1") {
+                            mainText = "Console log";
+                            currentLog = "console";
+                            currentControls = '<table width=160px><tr><td class="buttonleft"><span class="selected">console</span></td><td class="buttons">system</td><td class="buttonright">access</td><td class="buttonright">growl</td></tr></table>';
+                        }
+                        if (button == "Softkey2") {
+                            mainText = "System log";
+                            currentLog = "system";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">console</td><td class="buttons"><span class="selected">system</span></td><td class="buttonright">access</td><td class="buttonright">growl</td></tr></table>';
+                        }
+                        if (button == "Softkey3") {
+                            mainText = "http access log";
+                            currentLog = "access";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">console</td><td class="buttons">system</td><td class="buttonright"><span class="selected">access</span></td><td class="buttonright">growl</td></tr></table>';
+                        }
+                        if (button == "Softkey4") {
+                            mainText = "recent growls";
+                            //		currentLog = "growl";
+                            //		currentControls = '<table width=160px><tr><td class="buttonright"><span class="selected">next growl</span></td></tr></table>';
+                            //		currentControls = '<table width=160px><tr><td class="buttonleft">start</td><td class="buttonleft">previous</td><td class="buttonleft">next</td><td class="buttonright">end</td></tr></table>';
+                            //		currentScreen = "growls";
+                        }
+                        if (button == "Display") {
+                            mainText = "Date and Time<br>Weather Report";
+                            dateNtime();
+                            currentScreen = "main";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                        }
+                        
+                    } else if (currentScreen == 'growls') {
+                        //================== GROWL SCREEN BUTTONS
+                        if (button == "Softkey1") {
+                            growlLog = 0;
+                        }
+                        if (button == "Softkey2") {
+                            growlLog--;
+                        }
+                        if (button == "Softkey3") {
+                            growlLog++;
+                        }
+                        if (button == "Softkey4") {
+                            growlLog = growlArray.length -1;
+                        }
+                        if (button == "Display") {
+                            mainText = "Date and Time<br>Weather Report";
+                            dateNtime();
+                            currentScreen = "main";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                        }
+                    } //end what screen
+                }  // end function handleButton
+                
+                //================== CURRENTLY UNUSED ==================
+                
+                
+                //================== MAIN SCREEN FUNCTIONS ==================
+                function dateNtime() {
+                    // to do - break into separate functions, only run date once per day
+                    var currentTime = new Date();
+                    var month = currentTime.getMonth() + 1;
+                    var day = currentTime.getDate();
+                    var year = currentTime.getFullYear();
+                    var hours = currentTime.getHours();
+                    var minutes = currentTime.getMinutes();
+                    var dayex;
+                    
+                    if (minutes < 10) {minutes = "0" + minutes};
+                    
+                    // make human friendly months
+                    switch(month) {
+                        case  1:
+                        month = 'January';
+                        break
+                        case  2:
+                        month = 'February';
+                        break
+                        case  3:
+                        month = 'March';
+                        break
+                        case  4:
+                        month = 'April';
+                        break
+                        case  5:
+                        month = 'May';
+                        break
+                        case  6:
+                        month = 'June';
+                        break
+                        case  7:
+                        month = 'July';
+                        break
+                        case  8:
+                        month = 'August';
+                        break
+                        case  9:
+                        month = 'September';
+                        break
+                        case  10:
+                        month = 'October';
+                        break
+                        case  11:
+                        month = 'November';
+                        break
+                        case  12:
+                        month = 'December';
+                        break
                     }
                     
-                } else if (currentScreen == 'consolesc') {
-                    //================== LOG SCREEN BUTTONS
-                    if (button == "Softkey1") {
-                        mainText = "Console log";
-                        currentLog = "console";
-                        currentControls = '<table width=160px><tr><td class="buttonleft"><span class="selected">console</span></td><td class="buttons">system</td><td class="buttonright">access</td><td class="buttonright">growl</td></tr></table>';
-                    }
-                    if (button == "Softkey2") {
-                        mainText = "System log";
-                        currentLog = "system";
-                        currentControls = '<table width=160px><tr><td class="buttonleft">console</td><td class="buttons"><span class="selected">system</span></td><td class="buttonright">access</td><td class="buttonright">growl</td></tr></table>';
-                    }
-                    if (button == "Softkey3") {
-                        mainText = "http access log";
-                        currentLog = "access";
-                        currentControls = '<table width=160px><tr><td class="buttonleft">console</td><td class="buttons">system</td><td class="buttonright"><span class="selected">access</span></td><td class="buttonright">growl</td></tr></table>';
-                    }
-                    if (button == "Softkey4") {
-                        mainText = "recent growls";
-                        //		currentLog = "growl";
-                        //		currentControls = '<table width=160px><tr><td class="buttonright"><span class="selected">next growl</span></td></tr></table>';
-                        //		currentControls = '<table width=160px><tr><td class="buttonleft">start</td><td class="buttonleft">previous</td><td class="buttonleft">next</td><td class="buttonright">end</td></tr></table>';
-                        //		currentScreen = "growls";
-                    }
-                    if (button == "Display") {
-                        mainText = "Date and Time<br>Weather Report";
-                        dateNtime();
-                        currentScreen = "main";
-                        currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                    // human friendly days
+                    if ((day == 1)|(day==21)|(day==31)) {
+                        dayex = "st";
+                    } else if ((day == 2)|(day==22)) {
+                        dayex = "nd";
+                    } else if ((day == 3)|(day==23)) {
+                        dayex = "rd";
+                    } else {
+                        dayex = "th";
                     }
                     
-                } else if (currentScreen == 'growls') {
-                    //================== GROWL SCREEN BUTTONS
-                    if (button == "Softkey1") {
-                        growlLog = 0;
+                    if (mailIconDisplay == "true") {
+                        mainText = "<div id='mainbox'><div id='rightbox'>" + mailText + "</div><div id='leftbox'>" + day + dayex + " of " + month + " " + hours + ":" + minutes + "</div></div>" + "<div id='location'>" + window.application.runSystemScript('location') + "</div>" + window.application.runSystemScript('weatherInfo') ;
+                    } else {
+                        mainText = "<div id='mainbox'><div id='leftbox'>" + day + dayex + " of " + month + " " + hours + ":" + minutes + "</div></div>" + weatherData;
                     }
-                    if (button == "Softkey2") {
-                        growlLog--;
+                    
+                } // end of dateNtime
+                
+                
+                //================== ITUNES SCREEN FUNCTIONS ==================
+                function getTunes() {
+                    // to do : add play pause and mute status icons
+                    
+                    //	var isplaying = window.application.runUserScript('getState');
+                    
+                    $('progressbar').style.display = 'block';
+                    $('progress').style.display = 'block';
+                    var itunesStatus = application.runSystemScript('iTunesCurrentTrackFullStatus'); 
+                    itunesStatus = '(' + itunesStatus + ')'; 
+                    var itunes = eval(itunesStatus); 
+                    setText('pos', formatTime(itunes['position']));
+                    setText('remaining', formatTime((itunes['duration'])-(itunes['position']))); 
+                    var thisArtist = (itunes['artist']); 
+                    repeatstatus = application.runUserScript('repeat');
+                    //would love to be able ot have it say "Repeat One" "Repeat All" or "Repeat Off" but it won't work 
+                    repeaty = repeatstatus.toLowerCase();
+                    if ( repeaty == "krp1" ) {
+                        repeattext = "repeat one";
+                        repeatnum = 1;
+                    } else if ( repeaty == "kall" ) {
+                        repeattext = "repeat all";
+                        repeatnum = 1;
+                    } else {
+                        repeattext = "repeat off";
+                        repeatnum = 0;
                     }
-                    if (button == "Softkey3") {
-                        growlLog++;
-                    }
-                    if (button == "Softkey4") {
-                        growlLog = growlArray.length -1;
-                    }
-                    if (button == "Display") {
-                        mainText = "Date and Time<br>Weather Report";
-                        dateNtime();
-                        currentScreen = "main";
-                        currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
-                    }
-                } //end what screen
-            }  // end function handleButton
-            
-            //================== CURRENTLY UNUSED ==================
-            
-            
-            //================== MAIN SCREEN FUNCTIONS ==================
-            function dateNtime() {
-                // to do - break into separate functions, only run date once per day
-                var currentTime = new Date();
-                var month = currentTime.getMonth() + 1;
-                var day = currentTime.getDate();
-                var year = currentTime.getFullYear();
-                var hours = currentTime.getHours();
-                var minutes = currentTime.getMinutes();
-                var dayex;
-                
-                if (minutes < 10) {minutes = "0" + minutes};
-                
-                // make human friendly months
-                switch(month) {
-                    case  1:
-                    month = 'January';
-                    break
-                    case  2:
-                    month = 'February';
-                    break
-                    case  3:
-                    month = 'March';
-                    break
-                    case  4:
-                    month = 'April';
-                    break
-                    case  5:
-                    month = 'May';
-                    break
-                    case  6:
-                    month = 'June';
-                    break
-                    case  7:
-                    month = 'July';
-                    break
-                    case  8:
-                    month = 'August';
-                    break
-                    case  9:
-                    month = 'September';
-                    break
-                    case  10:
-                    month = 'October';
-                    break
-                    case  11:
-                    month = 'November';
-                    break
-                    case  12:
-                    month = 'December';
-                    break
-                }
-                
-                // human friendly days
-                if ((day == 1)|(day==21)|(day==31)) {
-                    dayex = "st";
-                } else if ((day == 2)|(day==22)) {
-                    dayex = "nd";
-                } else if ((day == 3)|(day==23)) {
-                    dayex = "rd";
-                } else {
-                    dayex = "th";
-                }
-                
-                if (mailIconDisplay == "true") {
-                    mainText = "<div id='mainbox'><div id='rightbox'>" + mailText + "</div><div id='leftbox'>" + day + dayex + " of " + month + " " + hours + ":" + minutes + "</div></div>" + "<div id='location'>" + window.application.runSystemScript('location') + "</div>" + window.application.runSystemScript('weatherInfo') ;
-                } else {
-                    mainText = "<div id='mainbox'><div id='leftbox'>" + day + dayex + " of " + month + " " + hours + ":" + minutes + "</div></div>" + weatherData;
-                }
-                
-            } // end of dateNtime
-            
-            
-            //================== ITUNES SCREEN FUNCTIONS ==================
-            function getTunes() {
-                // to do : add play pause and mute status icons
-                
-                //	var isplaying = window.application.runUserScript('getState');
-                
-                $('progressbar').style.display = 'block';
-                $('progress').style.display = 'block';
-                var itunesStatus = application.runSystemScript('iTunesCurrentTrackFullStatus'); 
-                itunesStatus = '(' + itunesStatus + ')'; 
-                var itunes = eval(itunesStatus); 
-                setText('pos', formatTime(itunes['position']));
-                setText('remaining', formatTime((itunes['duration'])-(itunes['position']))); 
-                var thisArtist = (itunes['artist']); 
-                thisArtist = thisArtist.replace(/\'/," ");
-                                                //itunes shuffle control
-                                                shufflestatus=application.runUserScript('shuffle');
-                                                if ( shufflestatus == "true" ) {
-                                                shuffley = "Shuffling";
-                                                currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle Off</td><td class="buttons"></td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                } else if ( shufflestatus == "false" ){
-                                                shuffley = "Not Shuffling";                                        
-                                                currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons"></td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                }
-                                                var thisTrack = (itunes['name']);
-                                                thisTrack = thisTrack.replace(/\'/," ");
-                                            
-                                                                              
-                                                                              // has the track changed? if so refresh the shuffle
-                                                                              if (thisTrack != currentTrack) {
-                                                                              shufflestatus = window.application.runUserScript('shuffle');
-                                                                              currentTrack = thisTrack
-                                                                              }
-                                                                              //                                                                              
-                                                                              //                                                                              // humanise ratings
-                                                                              //                                                                              if (rating == "100") { 
-                                                                              //                                                                              stars = "*****";
-                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                                              //                                                                              } else if (rating == "80") { 
-                                                                              //                                                                              // special case, switch 4 rating button to 5
-                                                                              //                                                                              stars = "****-";
-                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">*****</td></tr></table>';
-                                                                              //                                                                              } else if (rating == "60") { 
-                                                                              //                                                                              stars = "***--";
-                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                                              //                                                                              } else if (rating == "40") { 
-                                                                              //                                                                              stars = "**---";
-                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                                              //                                                                              } else if (rating == "20") { 
-                                                                              //                                                                              stars = "*----";
-                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                                              //                                                                              } else { 
-                                                                              //                                                                              stars = "unrated";
-                                                                              //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
-                                                                              //                                                                              }
-                                                                              
-                                                                              /* storing the indicator icons here till they are implemented:
-                                                                               <img id="mail" src="data:image/gif;base64,R0lGODlhCQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAJAAUAAAILjI8BuwfaHlQzoQIAOw%3D%3D" /><img id="mute" src="data:image/gif;base64,R0lGODlhBQAFAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAAFAAUAAAIIDB4GaZ2oVgEAOw%3D%3D" /><img id="pause" src="data:image/gif;base64,R0lGODlhBQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAFAAUAAAIHTGCGuZpnCgA7" /><img id="play" src="data:image/gif;base64,R0lGODlhBQAFAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAAFAAUAAAIIDIJ2CM1rUgEAOw%3D%3D" /> */
-                                                                              
-                                                                              mainText = thisArtist + '<span class="right"> ' + shuffley  + "</span>" + "<br>" + thisTrack;
-                                                                              $('diamond').style.left = ((Math.floor(90 / itunes['duration'] * itunes['position']))+34) + 'px'; 
-                                                                              }
-                                                                              
-                                                                              //================== MAIL SCREEN FUNCTIONS ==================
-                                                                              
-                                                                              // MAIL SCREEN SCRIPT
-                                                                              // to do : have this update every 10? minutes, run all the time, pop mail icon up on iTunes and home screens to indicate new mail. - half done.
-                                                                              function mailCheck() { 
-                                                                              $('scrollbox').style.display = 'block';
-                                                                              
-                                                                              newMessageCount = window.application.runUserScript('checkMail'); 
-                                                                              
-                                                                              // has # messages changed?
-                                                                              if (newMessageCount != unreadMessageCount) {
-                                                                              var data;
-                                                                              if (newMessageCount == '0') {
-                                                                              data = 'No new messages';
-                                                                              } else if (newMessageCount == '1') {
-                                                                              data = '1 unread message';
-                                                                              } else {
-                                                                              data = newMessageCount + ' unread messages';
-                                                                              }
-                                                                              mainText = '<img id="mail" src="data:image/gif;base64,R0lGODlhCQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAJAAUAAAILjI8BuwfaHlQzoQIAOw%3D%3D" /> ' + data;
-                                                                              
-                                                                              unreadMessageCount = newMessageCount;
-                                                                              currentMessage = 0;
-                                                                              currentDisplayTime = 0;
-                                                                              getNewMessages();
-                                                                              } else {
-                                                                              if (newMessageCount == '0') {
-                                                                              setText('scrollMessage', ' '); 
-                                                                              } else {
-                                                                              displayMail();
-                                                                              }
-                                                                              }
-                                                                              if (mainText == "Mail") {
-                                                                              unreadMessageCount = 0;
-                                                                              }
-                                                                              } 
-                                                                              
-                                                                              
-                                                                              function getNewMessages() {
-                                                                              var maildata = window.application.runSystemScript('getMessages');
-                                                                              unreadMail = maildata.split("-*-");
-                                                                              displayMail();
-                                                                              }
-                                                                              
-                                                                              
-                                                                              function displayMail() {
-                                                                              // runs every second while unread mail
-                                                                              
-                                                                              if (currentDisplayTime >= messageDisplayTime) {
-                                                                              currentDisplayTime = 0;
-                                                                              if (currentMessage >= (newMessageCount-1)) {
-                                                                              currentMessage = 0;
-                                                                              } else {
-                                                                              currentMessage++;
-                                                                              }
-                                                                              
-                                                                              } else {
-                                                                              currentDisplayTime++;
-                                                                              }
-                                                                              setText('scrollMessage', unreadMail[currentMessage]);
-                                                                              }
-                                                                              
-                                                                              
-                                                                              
-                                                                              //================== SYSTEM SCREEN FUNCTIONS ==================
-                                                                              
-                                                                              // CPU CHART SCRIPT
-                                                                              function logCPU() { 
-                                                                              var data = window.application.runSystemScript('getCPU');
-                                                                              data = data / coreCount;
-                                                                              if (data <= 5) { data = fiveP ;
-                                                                              } else if (data <= 10) { data = tenP ;
-                                                                              } else if (data <= 15) { data = fifteenP ;
-                                                                              } else if (data <= 20) { data = twentyP ;
-                                                                              } else if (data <= 25) { data = twentyfiveP ;
-                                                                              } else if (data <= 30) { data = thirtyP ;
-                                                                              } else if (data <= 35) { data = thirtyfiveP ;
-                                                                              } else if (data <= 40) { data = fourtyP ;
-                                                                              } else if (data <= 45) { data = fourtyfiveP ;
-                                                                              } else if (data <= 50) { data = fivtyP ;
-                                                                              } else if (data <= 55) { data = fivtyfiveP ;
-                                                                              } else if (data <= 60) { data = sixtyP ;
-                                                                              } else if (data <= 65) { data = sixtyfiveP ;
-                                                                              } else if (data <= 70) { data = seventyP ;
-                                                                              } else if (data <= 75) { data = seventyfiveP ;
-                                                                              } else if (data <= 80) { data = eightyP ;
-                                                                              } else if (data <= 85) { data = eightyfiveP ;
-                                                                              } else if (data <= 90) { data = ninetyP ;
-                                                                              } else if (data <= 95) { data = ninetyfiveP ;
-                                                                              } else  { data = hundredP ;
-                                                                              }
-                                                                              
-                                                                              c1 = c2; c2 = c3; c3 = c4; c4 = c5; c5=c6; c6=c7; c7=c8; c8=c9; c9=c10; c10=c11; c11=c12; c12=c13; c13=c14; c14=c15; c15=c16; c16=c17, c17=c18; c18=c19; c19=c20; c20=c21; c21=c22; c22=c23; c23=c24; c24=c25; c25=c26; c26=c27; c27=c28; c28=c29; c29= c30; c30=c31; c31=c32; c32=c33; c33=c34; c34=c35; c35=c36; c36=c37; c37=c38; c38=c39; c39=c40; c40=c41; c41=c42;
-                                                                              c42 =  data;
-                                                                              } 
-                                                                              
-                                                                              
-                                                                              // HOT APPS SCRIPT
-                                                                              function showHotAppsOverlay() { 
-                                                                              var data = window.application.runUserScript('hotApps'); 
-                                                                              var dataArray = data.split("\r");
-                                                                              var firstPart = dataArray[0].split(".");
-                                                                              var fpAdjusted = (firstPart[0] / coreCount);
-                                                                              var firstProcess = firstPart[1].substring(2);
-                                                                              var LineOne = Math.round(fpAdjusted) + "% " + firstProcess;
-                                                                              
-                                                                              var firstPart = dataArray[1].split(".");
-                                                                              var fpAdjusted = (firstPart[0] / coreCount);
-                                                                              var firstProcess = firstPart[1].substring(2);
-                                                                              var LineTwo = Math.round(fpAdjusted) + "% " + firstProcess;
-                                                                              
-                                                                              var firstPart = dataArray[2].split(".");
-                                                                              var fpAdjusted = (firstPart[0] / coreCount);
-                                                                              var firstProcess = firstPart[1].substring(2);
-                                                                              var LineThree = Math.round(fpAdjusted) + "% " + firstProcess;
-                                                                              
-                                                                              data = LineOne + "<br>" + LineTwo + "<br>" + LineThree;
-                                                                              
-                                                                              //data = data.replace( new RegExp( "\\r", "g" ), "<br />" ); 
-                                                                              mainText = data;
-                                                                              } 
-                                                                              
-                                                                              // DISKS SCREEN SCRIPT
-                                                                              function showFSOverlay() { 
-                                                                              var data = window.application.runUserScript('getFS'); 
-                                                                              data = data.replace( new RegExp( "/dev/", "g" ), "" );
-                                                                              data = data.replace( new RegExp( "/Volumes/", "g" ), "" );
-                                                                              data = data.replace( new RegExp( "/", "g" ), "Startup" );
-                                                                              
-                                                                              tableData = [];
-                                                                              
-                                                                              var diskItems = data.split("\r");
-                                                                              var totalDisks = diskItems.length;
-                                                                              var diskPercent = [];
-                                                                              var howlong = "";
-                                                                              var startpos = "";
-                                                                              var thisPercent = "";
-                                                                              var i=0;
-                                                                              var y = "";
-                                                                              for (i=0; i< totalDisks; i++) {
-                                                                              diskPercent = [];
-                                                                              diskPercent = diskItems[i].split("%");
-                                                                              howlong = diskPercent[0].length;
-                                                                              startpos = howlong - 2;
-                                                                              thisPercent = diskPercent[0].substring(startpos);
-                                                                              // trim diskname to 10 chars
-                                                                              var trimmed = diskPercent[1].replace(/^\s+|\s+$/g, '') ;
-                                                                              var diskName = trimmed.substring(0,10);
-                                                                              y = "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"150\"><tr><td BGCOLOR=black width =\"" + thisPercent + "\" height =\"6\"></td><td style=\"border:solid 1px\"></td><td align=\"right\" width=\"50\" style=\"font-family: FrucadeSmall; font-size:8px\">" + diskName + "</td></tr></table></br>";
-                                                                              tableData.push(y);
-                                                                              }
-                                                                              
-                                                                              //tableData = tableData + "</table>";
-                                                                              
-                                                                              //data = diskPercent[1];
-                                                                              
-                                                                              //data = data.replace( new RegExp( "\\r", "g" ), "<br />" );
-                                                                              //mainText = '<span class="buttonleft">' + data + '</span>';
-                                                                              //mainText = tableData[1];
-                                                                              } 
-                                                                              
-                                                                              // UPTIME SCREEN SCRIPT
-                                                                              function showUptime() { 
-                                                                              var data = window.application.runSystemScript('checkLoads');
-                                                                              mainText = data;
-                                                                              } 
-                                                                              
-                                                                              
-                                                                              //================== REGISTER EXTERNAL SCRIPTS ==================
-                                                                              
-                                                                              function init() {
-                                                                              // main scripts
-                                                                              window.application.registerUserScript('getNewVersion', 'open location "http://darndog.no-ip.com/LCDToolMultiScreen.zip"');
-                                                                              
-                                                                              // itunes scripts
-                                                                              window.application.registerUserScript('iTunesActivate', 'tell application "iTunes" to activate');
-                                                                              window.application.registerUserScript('getRating', 'tell application "iTunes"  to set thisRating to the rating of the current track');
-                                                                              window.application.registerUserScript('shuffleOn', 'tell application "iTunes"  to set shuffle of current playlist to true');
-                                                                              window.application.registerUserScript('shuffleOff', 'tell application "iTunes"  to set shuffle of current playlist to false');
-                                                                              window.application.registerUserScript('rateThree', 'tell application "iTunes"  to set rating of current track to 60');
-                                                                              window.application.registerUserScript('rateFour', 'tell application "iTunes"  to set rating of current track to 80');
-                                                                              window.application.registerUserScript('rateFive', 'tell application "iTunes"  to set rating of current track to 100');
-                                                                              window.application.registerUserScript('shuffle', 'tell application "iTunes" to return shuffle of current playlist');
-                                                                              
-                                                                              // mail scripts
-                                                                              window.application.registerUserScript('checkMail', 'tell application "Mail" to set unread to unread count of inbox as string');
-                                                                              window.application.registerUserScript('getMail', 'tell application "Mail" to check for new mail'); 
-                                                                              window.application.registerUserScript('openMail', 'tell application "Mail" to activate');
-                                                                              
-                                                                              // system scripts
-                                                                              window.application.registerUserScript('hotApps', 'do shell script "ps -crx -o %cpu,command | head -n 4 | tail -n 3"'); 
-                                                                              window.application.registerUserScript('getUptime', 'do shell script "uptime"'); 
-                                                                              window.application.registerUserScript('getFS', 'do shell script "df -hT hfs | tail +2"'); 
-                                                                              window.application.registerUserScript('checkCores', 'do shell script "sysctl hw.ncpu"');
-                                                                              window.application.registerUserScript('grabGrowl', 'do shell script "tail -1 ~/Library/Scripts/growl.log"'); 
-                                                                              //	window.application.registerUserScript('grabMoreGrowls', 'do shell script "tail -10 ~/Library/Scripts/growl.log"');
-                                                                              
-                                                                              // console scripts 
-                                                                              window.application.registerUserScript('getConlog', 'do shell script "cat /Library/Logs/Console/501/console.log | tail -n1"'); 
-                                                                              window.application.registerUserScript('getLeoConlog', 'do shell script "syslog -C | tail -n1"'); 
-                                                                              window.application.registerUserScript('getSyslog', 'do shell script "cat /var/log/system.log | tail -n1"'); 
-                                                                              window.application.registerUserScript('getAcclog', 'do shell script "cat /var/log/httpd/access_log | tail -n1"'); 
-                                                                              window.application.registerUserScript('getLeoAcclog', 'do shell script "cat /var/log/apache2/access_log | tail -n1"'); 
-                                                                              window.application.registerUserScript('getErrlog', 'do shell script "cat /var/log/httpd/error_log | tail -n1"'); 
-                                                                              
-                                                                              start(); 
-                                                                              }  // end init
-                                                                              
-                                                                              function start() { 
-                                                                              timer = setInterval("update()", mainUpdateMiliseconds); 
-                                                                              } 
-                                                                              
-                                                                              
-                                                                              function stop() { 
-                                                                              clearInterval(timer); 
-                                                                              } 
-                                                                              
-                                                                              
-                                                                              
-                                                                              </script> 
+                    
+                    thisArtist = thisArtist.replace(/\'/," ");
+                                                    //itunes shuffle control
+                                                    shufflestatus=application.runUserScript('shuffle');
+                                                    if ( shufflestatus == "true" ) {
+                                                    shuffley = "Shuffling";
+                                                    currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle Off</td><td class="buttons">Repeat</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                    } else if ( shufflestatus == "false" ){
+                                                    shuffley = "Not Shuffling";                                        
+                                                    currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Repeat</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                    }
+                                                    var thisTrack = (itunes['name']);
+                                                    thisTrack = thisTrack.replace(/\'/," ");
+                                                                                  
+                                                                                  //new section working more on repeat
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  // has the track changed? if so refresh the shuffle
+                                                                                  if (thisTrack != currentTrack) {
+                                                                                  shufflestatus = window.application.runUserScript('shuffle');
+                                                                                  currentTrack = thisTrack
+                                                                                  }
+                                                                                  //                                                                              
+                                                                                  //                                                                              // humanise ratings
+                                                                                  //                                                                              if (rating == "100") { 
+                                                                                  //                                                                              stars = "*****";
+                                                                                  //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                                  //                                                                              } else if (rating == "80") { 
+                                                                                  //                                                                              // special case, switch 4 rating button to 5
+                                                                                  //                                                                              stars = "****-";
+                                                                                  //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">*****</td></tr></table>';
+                                                                                  //                                                                              } else if (rating == "60") { 
+                                                                                  //                                                                              stars = "***--";
+                                                                                  //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                                  //                                                                              } else if (rating == "40") { 
+                                                                                  //                                                                              stars = "**---";
+                                                                                  //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                                  //                                                                              } else if (rating == "20") { 
+                                                                                  //                                                                              stars = "*----";
+                                                                                  //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                                  //                                                                              } else { 
+                                                                                  //                                                                              stars = "unrated";
+                                                                                  //                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                                  //                                                                              }
+                                                                                  
+                                                                                  /* storing the indicator icons here till they are implemented:
+                                                                                   <img id="mail" src="data:image/gif;base64,R0lGODlhCQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAJAAUAAAILjI8BuwfaHlQzoQIAOw%3D%3D" /><img id="mute" src="data:image/gif;base64,R0lGODlhBQAFAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAAFAAUAAAIIDB4GaZ2oVgEAOw%3D%3D" /><img id="pause" src="data:image/gif;base64,R0lGODlhBQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAFAAUAAAIHTGCGuZpnCgA7" /><img id="play" src="data:image/gif;base64,R0lGODlhBQAFAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAAFAAUAAAIIDIJ2CM1rUgEAOw%3D%3D" /> */
+                                                                                  
+                                                                                  mainText = thisArtist + '<span class="right"> ' + shuffley  + "</span>" + "<br>" + thisTrack + '<span class="right"> '  + repeattext;
+                                                                                  //TO DO -- make scrolling text if song title or band name is too long.
+                                                                                  
+                                                                                  $('diamond').style.left = ((Math.floor(90 / itunes['duration'] * itunes['position']))+34) + 'px'; 
+                                                                                  }
+                                                                                  //================== MAIL SCREEN FUNCTIONS ==================
+                                                                                  
+                                                                                  // MAIL SCREEN SCRIPT
+                                                                                  // to do : have this update every 10? minutes, run all the time, pop mail icon up on iTunes and home screens to indicate new mail. - half done.
+                                                                                  function mailCheck() { 
+                                                                                  $('scrollbox').style.display = 'block';
+                                                                                  
+                                                                                  newMessageCount = window.application.runUserScript('checkMail'); 
+                                                                                  
+                                                                                  // has # messages changed?
+                                                                                  if (newMessageCount != unreadMessageCount) {
+                                                                                  var data;
+                                                                                  if (newMessageCount == '0') {
+                                                                                  data = 'No new messages';
+                                                                                  } else if (newMessageCount == '1') {
+                                                                                  data = '1 unread message';
+                                                                                  } else {
+                                                                                  data = newMessageCount + ' unread messages';
+                                                                                  }
+                                                                                  mainText = '<img id="mail" src="data:image/gif;base64,R0lGODlhCQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAJAAUAAAILjI8BuwfaHlQzoQIAOw%3D%3D" /> ' + data;
+                                                                                  
+                                                                                  unreadMessageCount = newMessageCount;
+                                                                                  currentMessage = 0;
+                                                                                  currentDisplayTime = 0;
+                                                                                  getNewMessages();
+                                                                                  } else {
+                                                                                  if (newMessageCount == '0') {
+                                                                                  setText('scrollMessage', ' '); 
+                                                                                  } else {
+                                                                                  displayMail();
+                                                                                  }
+                                                                                  }
+                                                                                  if (mainText == "Mail") {
+                                                                                  unreadMessageCount = 0;
+                                                                                  }
+                                                                                  } 
+                                                                                  
+                                                                                  
+                                                                                  function getNewMessages() {
+                                                                                  var maildata = window.application.runSystemScript('getMessages');
+                                                                                  unreadMail = maildata.split("-*-");
+                                                                                  displayMail();
+                                                                                  }
+                                                                                  
+                                                                                  
+                                                                                  function displayMail() {
+                                                                                  // runs every second while unread mail
+                                                                                  
+                                                                                  if (currentDisplayTime >= messageDisplayTime) {
+                                                                                  currentDisplayTime = 0;
+                                                                                  if (currentMessage >= (newMessageCount-1)) {
+                                                                                  currentMessage = 0;
+                                                                                  } else {
+                                                                                  currentMessage++;
+                                                                                  }
+                                                                                  
+                                                                                  } else {
+                                                                                  currentDisplayTime++;
+                                                                                  }
+                                                                                  setText('scrollMessage', unreadMail[currentMessage]);
+                                                                                  }
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  //================== SYSTEM SCREEN FUNCTIONS ==================
+                                                                                  
+                                                                                  // CPU CHART SCRIPT
+                                                                                  function logCPU() { 
+                                                                                  var data = window.application.runSystemScript('getCPU');
+                                                                                  data = data / coreCount;
+                                                                                  if (data <= 5) { data = fiveP ;
+                                                                                  } else if (data <= 10) { data = tenP ;
+                                                                                  } else if (data <= 15) { data = fifteenP ;
+                                                                                  } else if (data <= 20) { data = twentyP ;
+                                                                                  } else if (data <= 25) { data = twentyfiveP ;
+                                                                                  } else if (data <= 30) { data = thirtyP ;
+                                                                                  } else if (data <= 35) { data = thirtyfiveP ;
+                                                                                  } else if (data <= 40) { data = fourtyP ;
+                                                                                  } else if (data <= 45) { data = fourtyfiveP ;
+                                                                                  } else if (data <= 50) { data = fivtyP ;
+                                                                                  } else if (data <= 55) { data = fivtyfiveP ;
+                                                                                  } else if (data <= 60) { data = sixtyP ;
+                                                                                  } else if (data <= 65) { data = sixtyfiveP ;
+                                                                                  } else if (data <= 70) { data = seventyP ;
+                                                                                  } else if (data <= 75) { data = seventyfiveP ;
+                                                                                  } else if (data <= 80) { data = eightyP ;
+                                                                                  } else if (data <= 85) { data = eightyfiveP ;
+                                                                                  } else if (data <= 90) { data = ninetyP ;
+                                                                                  } else if (data <= 95) { data = ninetyfiveP ;
+                                                                                  } else  { data = hundredP ;
+                                                                                  }
+                                                                                  
+                                                                                  c1 = c2; c2 = c3; c3 = c4; c4 = c5; c5=c6; c6=c7; c7=c8; c8=c9; c9=c10; c10=c11; c11=c12; c12=c13; c13=c14; c14=c15; c15=c16; c16=c17, c17=c18; c18=c19; c19=c20; c20=c21; c21=c22; c22=c23; c23=c24; c24=c25; c25=c26; c26=c27; c27=c28; c28=c29; c29= c30; c30=c31; c31=c32; c32=c33; c33=c34; c34=c35; c35=c36; c36=c37; c37=c38; c38=c39; c39=c40; c40=c41; c41=c42;
+                                                                                  c42 =  data;
+                                                                                  } 
+                                                                                  
+                                                                                  
+                                                                                  // HOT APPS SCRIPT
+                                                                                  function showHotAppsOverlay() { 
+                                                                                  var data = window.application.runUserScript('hotApps'); 
+                                                                                  var dataArray = data.split("\r");
+                                                                                  var firstPart = dataArray[0].split(".");
+                                                                                  var fpAdjusted = (firstPart[0] / coreCount);
+                                                                                  var firstProcess = firstPart[1].substring(2);
+                                                                                  var LineOne = Math.round(fpAdjusted) + "% " + firstProcess;
+                                                                                  
+                                                                                  var firstPart = dataArray[1].split(".");
+                                                                                  var fpAdjusted = (firstPart[0] / coreCount);
+                                                                                  var firstProcess = firstPart[1].substring(2);
+                                                                                  var LineTwo = Math.round(fpAdjusted) + "% " + firstProcess;
+                                                                                  
+                                                                                  var firstPart = dataArray[2].split(".");
+                                                                                  var fpAdjusted = (firstPart[0] / coreCount);
+                                                                                  var firstProcess = firstPart[1].substring(2);
+                                                                                  var LineThree = Math.round(fpAdjusted) + "% " + firstProcess;
+                                                                                  
+                                                                                  data = LineOne + "<br>" + LineTwo + "<br>" + LineThree;
+                                                                                  
+                                                                                  //data = data.replace( new RegExp( "\\r", "g" ), "<br />" ); 
+                                                                                  mainText = data;
+                                                                                  } 
+                                                                                  
+                                                                                  // DISKS SCREEN SCRIPT
+                                                                                  function showFSOverlay() { 
+                                                                                  var data = window.application.runUserScript('getFS'); 
+                                                                                  data = data.replace( new RegExp( "/dev/", "g" ), "" );
+                                                                                  data = data.replace( new RegExp( "/Volumes/", "g" ), "" );
+                                                                                  data = data.replace( new RegExp( "/", "g" ), "Startup" );
+                                                                                  
+                                                                                  tableData = [];
+                                                                                  
+                                                                                  var diskItems = data.split("\r");
+                                                                                  var totalDisks = diskItems.length;
+                                                                                  var diskPercent = [];
+                                                                                  var howlong = "";
+                                                                                  var startpos = "";
+                                                                                  var thisPercent = "";
+                                                                                  var i=0;
+                                                                                  var y = "";
+                                                                                  for (i=0; i< totalDisks; i++) {
+                                                                                  diskPercent = [];
+                                                                                  diskPercent = diskItems[i].split("%");
+                                                                                  howlong = diskPercent[0].length;
+                                                                                  startpos = howlong - 2;
+                                                                                  thisPercent = diskPercent[0].substring(startpos);
+                                                                                  // trim diskname to 10 chars
+                                                                                  var trimmed = diskPercent[1].replace(/^\s+|\s+$/g, '') ;
+                                                                                  var diskName = trimmed.substring(0,10);
+                                                                                  y = "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"150\"><tr><td BGCOLOR=black width =\"" + thisPercent + "\" height =\"6\"></td><td style=\"border:solid 1px\"></td><td align=\"right\" width=\"50\" style=\"font-family: FrucadeSmall; font-size:8px\">" + diskName + "</td></tr></table></br>";
+                                                                                  tableData.push(y);
+                                                                                  }
+                                                                                  
+                                                                                  //tableData = tableData + "</table>";
+                                                                                  
+                                                                                  //data = diskPercent[1];
+                                                                                  
+                                                                                  //data = data.replace( new RegExp( "\\r", "g" ), "<br />" );
+                                                                                  //mainText = '<span class="buttonleft">' + data + '</span>';
+                                                                                  //mainText = tableData[1];
+                                                                                  } 
+                                                                                  
+                                                                                  // UPTIME SCREEN SCRIPT
+                                                                                  function showUptime() { 
+                                                                                  var data = window.application.runSystemScript('checkLoads');
+                                                                                  mainText = data;
+                                                                                  } 
+                                                                                  
+                                                                                  
+                                                                                  //================== REGISTER EXTERNAL SCRIPTS ==================
+                                                                                  
+                                                                                  function init() {
+                                                                                  // main scripts
+                                                                                  window.application.registerUserScript('getNewVersion', 'open location "http://darndog.no-ip.com/LCDToolMultiScreen.zip"');
+                                                                                  
+                                                                                  // itunes scripts
+                                                                                  window.application.registerUserScript('iTunesActivate', 'tell application "iTunes" to activate');
+                                                                                  window.application.registerUserScript('getRating', 'tell application "iTunes"  to set thisRating to the rating of the current track');
+                                                                                  window.application.registerUserScript('shuffleOn', 'tell application "iTunes"  to set shuffle of current playlist to true');
+                                                                                  window.application.registerUserScript('shuffleOff', 'tell application "iTunes"  to set shuffle of current playlist to false');
+                                                                                  window.application.registerUserScript('rateThree', 'tell application "iTunes"  to set rating of current track to 60');
+                                                                                  window.application.registerUserScript('rateFour', 'tell application "iTunes"  to set rating of current track to 80');
+                                                                                  window.application.registerUserScript('rateFive', 'tell application "iTunes"  to set rating of current track to 100');
+                                                                                  window.application.registerUserScript('shuffle', 'tell application "iTunes" to return shuffle of current playlist');
+                                                                                  window.application.registerUserScript('repeat', 'tell application "iTunes" to return song repeat of current playlist');
+                                                                                  window.application.registerUserScript('repeatone', 'tell application "iTunes" to set song repeat of current playlist to one');
+                                                                                  window.application.registerUserScript('repeatall', 'tell application "iTunes" to set song repeat of current playlist to all');
+                                                                                  window.application.registerUserScript('repeatoff', 'tell application "iTunes" to set song repeat of current playlist to off');
+                                                                                  
+                                                                                  // mail scripts
+                                                                                  window.application.registerUserScript('checkMail', 'tell application "Mail" to set unread to unread count of inbox as string');
+                                                                                  window.application.registerUserScript('getMail', 'tell application "Mail" to check for new mail'); 
+                                                                                  window.application.registerUserScript('openMail', 'tell application "Mail" to activate');
+                                                                                  
+                                                                                  // system scripts
+                                                                                  window.application.registerUserScript('hotApps', 'do shell script "ps -crx -o %cpu,command | head -n 4 | tail -n 3"'); 
+                                                                                  window.application.registerUserScript('getUptime', 'do shell script "uptime"'); 
+                                                                                  window.application.registerUserScript('getFS', 'do shell script "df -hT hfs | tail +2"'); 
+                                                                                  window.application.registerUserScript('checkCores', 'do shell script "sysctl hw.ncpu"');
+                                                                                  window.application.registerUserScript('grabGrowl', 'do shell script "tail -1 ~/Library/Scripts/growl.log"'); 
+                                                                                  //	window.application.registerUserScript('grabMoreGrowls', 'do shell script "tail -10 ~/Library/Scripts/growl.log"');
+                                                                                  
+                                                                                  // console scripts 
+                                                                                  window.application.registerUserScript('getConlog', 'do shell script "cat /Library/Logs/Console/501/console.log | tail -n1"'); 
+                                                                                  window.application.registerUserScript('getLeoConlog', 'do shell script "syslog -C | tail -n1"'); 
+                                                                                  window.application.registerUserScript('getSyslog', 'do shell script "cat /var/log/system.log | tail -n1"'); 
+                                                                                  window.application.registerUserScript('getAcclog', 'do shell script "cat /var/log/httpd/access_log | tail -n1"'); 
+                                                                                  window.application.registerUserScript('getLeoAcclog', 'do shell script "cat /var/log/apache2/access_log | tail -n1"'); 
+                                                                                  window.application.registerUserScript('getErrlog', 'do shell script "cat /var/log/httpd/error_log | tail -n1"'); 
+                                                                                  
+                                                                                  start(); 
+                                                                                  }  // end init
+                                                                                  
+                                                                                  function start() { 
+                                                                                  timer = setInterval("update()", mainUpdateMiliseconds); 
+                                                                                  } 
+                                                                                  
+                                                                                  
+                                                                                  function stop() { 
+                                                                                  clearInterval(timer); 
+                                                                                  } 
+                                                                                  
+                                                                                  
+                                                                                  
+                                                                                  </script> 
         <style type="text/css"> 
             /* to do : sort this mess */
             #top {overflow: hidden; margin-left: 1px; margin-top: 1px; font-family: FrucadeSmall; font-size:8px; text-align: left;} 

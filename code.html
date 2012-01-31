@@ -1,0 +1,918 @@
+<html>
+    <head>
+        <script type="text/javascript" src="js/prototype.js"></script>
+        <script type="text/javascript">
+            //================== USER PREFS ==================
+            var mainUpdateMiliseconds = 1000;	// How often the display is updated, increase this if your display stops updating with console message "too many updates" LCDTool default is 1000
+            var versionDisplayTime = 6; 			// in a new version is available, how long should new version info stay on main screen at startup in seconds.
+            var mainText = "Main Screen turn on"; 	// start up message.
+            
+            var logGrowl = "true";				// Get Growl Notifications? NOTE: you must set growl preferences to always log to a custom log file: ~/Library/Scripts/growl.log
+            var alwaysDisplayGrowls = "false";	// If true new notifications will overlay current screen
+            var growlLinger = 5;					// Seconds before automatic notifications are dismissed or until next notification in queue is displayed.
+            var growlUpdateFrequency = 2;		// How often should we check to see if there are new growls?
+            
+            var mailIconDisplay = "true";			// Display unread mail count on main screen? change to "true" to display.
+            var mailUpdateFrequency = 60;		// How often should we check to see if mail.app has received new mail? (only relevant to main screen mail display setting above).
+            var messageDisplayTime = 5;	  		// How long should each rotating message be displayed in seconds
+            
+            var weatherDisplay = "true";			// Display weather on main screen? (default is 'false')
+            var checkForUpdates = "false";			// Check for updates at startup
+            
+            var alwaysLogSystem = "false";		// Run system monitors in the background at all times? (means there is always CPU history etc, very, very low overhead).
+            var systemLogInterval = 1;			// How often do we log CPU etc? (default is 2 second intervals)
+            
+            //================== DO NOT EDIT BELOW THIS LINE UNLESS YOU KNOW WHAT YOU'RE DOING :) ==================
+            
+            //================== GLOBAL VARS ==================
+            var codeVersion = "0.4"; // MultiScreen version
+            var versionCounter = 0; 
+            var timer;
+            var currentScreen = "main";
+            var subScreen ="";
+            var refreshCounter = 0; // multi use counter for various system screens
+            var growlRefreshCounter = 0;
+            var currentLog = "console"; // default log
+            var currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+            var gap = "/><img src="
+            var coreCount = window.application.runSystemScript('CheckCPUinfo');
+            var osVersion = window.application.runSystemScript('CheckOS');
+            var tableData = [];
+            var d = 0;
+            var h = 0;
+            var growlTimer =0;
+            var growlArray = [];
+            var growlDump = [];
+            var growlDisplay = [];
+            var growlsWaiting = "false";
+            var growlIndex = 0;
+            var growlClock = 0;
+            var foundIt = "false";
+            var growlLog = 0;
+            //================== TIMING FIXES & ASSORTED ==================
+            versionDisplayTime = Math.round(versionDisplayTime * (1000/mainUpdateMiliseconds));
+            mailUpdateFrequency = Math.round(mailUpdateFrequency * (1000/mainUpdateMiliseconds));	messageDisplayTime = Math.round(messageDisplayTime * (1000/mainUpdateMiliseconds));
+            systemLogInterval = Math.round(systemLogInterval * (1000/mainUpdateMiliseconds));
+            growlTimeout = growlLinger * 1000;
+            growlUpdateFrequency = Math.round(growlUpdateFrequency * (1000/mainUpdateMiliseconds));
+            growlLinger = Math.round(growlLinger * (1000/mainUpdateMiliseconds));
+            var myRegExp = /10.5/;
+            var findy = osVersion.search(myRegExp);
+            if (findy != -1) {
+                osVersion = "10.5";
+            } else {
+                osVersion = "10.4";
+            }
+            
+            //================== ITUNES VARS ==================
+            var rating = "";
+            var stars ="";
+            var currentTrack ="";
+            
+            //================== MAIL VARS ==================
+            var newMailCount;
+            var mailText = "?";
+            var mailRefreshCounter = 0; // just a counter
+            var newMessageCount = 0;
+            var unreadMessageCount = 0;
+            var currentMessage = 0;
+            var currentDisplayTime = 0;
+            var unreadMail = new Array();
+            
+            //================== CPU HISTORY GRAPHICS ==================
+            var sysLogCounter = 0;
+            var emptyP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAADABcAAAIHhI%2Bpy%2B1%2FCgA7"';
+            var fiveP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAIIjI%2Bpy%2B0JwCoAOw%3D%3D"';
+            var tenP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAIKjI%2Bpy%2B0GQIirAAA7"';
+            var fifteenP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAIKjI%2Bpy90AApRRFQA7"';
+            var twentyP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAILjI%2Bpy60AApRxqgIAOw%3D%3D"';
+            var twentyfiveP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAIMjI%2Bpy30AApRxTlUAADs%3D"';
+            var thirtyP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAIMjI%2Bpyw0QXoSyQlUAADs%3D"';
+            var thirtyfiveP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAIMjI%2BpywoQXoSyUqgKADs%3D"';
+            var fourtyP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAIMjI%2BpywcQXoSy0rsKADs%3D"';
+            var fourtyfiveP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAIMjI%2BpywDh4It0WrkKADs%3D"';
+            var fivtyP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAINjI%2BpmwDh4It0WolVAQA7"';
+            var fivtyfiveP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAINjI%2BpawDh4It0WomjKgA7"';
+            var sixtyP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAINjI%2BpChD9HJyyxktXAQA7"';
+            var sixtyfiveP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAINjI%2BpBxD9HJyyxkuvKgA7"';
+            var seventyP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAINjI%2BpAMHenowU2nmbKgA7"';
+            var seventyfiveP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAINjI95AMHenowU2nmrKgA7"';
+            var eightyP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAIOjI8JENvsIpyvSktdCgUAOw%3D%3D"';
+            var eightyfiveP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAADABcAAAIOjI8GENvsIpyvSktvCgUAOw%3D%3D"';
+            var ninetyP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAADABcAAAIOhH8RoLwNn3Q01mkbMgUAOw%3D%3D"';
+            var ninetyfiveP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAADABcAAAINhB8BucrvYpuQylrPKQA7"';
+            var hundredP = '"data:image/gif;base64,R0lGODlhAwAXAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAADABcAAAIOhBOAmusNmXwz0puMBgUAOw%3D%3D"';
+            var chartP = '"data:image/gif;base64,R0lGODlhGQAXAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAAZABcAAAJSjI%2BpCA32QjsTWsle1FZHzICcWIGUiErjd5XVdi6yzM62eduss31wGGthShSH6ter4U7IUfBYFCaUOQW1CsTStLOa67KNcYgLXsqobS5vL7CsAAA7"';
+            
+            var c1 = c2 = c3 = c4 = c5 = c6 = c7 = c8 = c9 = c10 = c11 = c12 = c13 = c14 = c15 = c16 = c17 = c18 = c19 = c20 = c21 = c22 = c23 = c24 = c25 = c26 = c27 = c28 = c28 = c29 = c30 = c31 = c32 = c33 = c33 = c34 = c35 = c36 = c37 = c38 = c39 = c40 = c41 = c42 = emptyP;
+            var cChart = chartP; 
+            
+            //================== WEATHER & UPDATE VARS ==================
+            
+            
+            if (weatherDispay == "true") {
+                var weatherRawData = window.application.runSystemScript('weatherInfo');
+                var weatherData = weatherRawData;
+            }	
+            //	are we running the latest version? if not leave a message onscreen for 6 secs at startup
+            if (checkForUpdates == "true") {
+                var latestVersion = window.application.runSystemScript('updateInfo');
+            } else {
+                var latestVersion ="";
+            }
+            
+            //	seed growlArray
+            if (logGrowl == "true") {
+                var newGrowl = window.application.runUserScript('grabGrowl');
+                growlArray.push(newGrowl);
+                var lastGrowl = newGrowl;
+            }
+            
+            
+            //================== MAIN FUNCTIONS ==================
+            function setText(id, value) {$(id).innerHTML = value} 
+            function formatTime(sec) {var ss = Math.floor(sec % 60); ss = ss < 10 ? '0' + ss : ss; return Math.floor(sec/60) + ':' + ss} 
+            
+            //==================  UPDATE FUNCTION RUNS EVERY SECOND ==================
+            function update() { 
+                
+                setText('artist', mainText); 
+                setText('controls', currentControls);
+                
+                if (alwaysLogSystem == "true") {
+                    if (sysLogCounter >= systemLogInterval) {
+                        logCPU();
+                        sysLogCounter = 0;
+                    } else {
+                        sysLogCounter++;
+                    }
+                }
+                
+                // determine what we need to be updating
+                if (currentScreen == 'main') {
+                    if (mailIconDisplay == "true") {
+                        newMailCount = window.application.runUserScript('checkMail'); 
+                        
+                        if ((mailText == "?") || (mailRefreshCounter > mailUpdateFrequency)){
+                            if (newMailCount != 0) {
+                                mailText = newMailCount + '<img id="mail" src="data:image/gif;base64,R0lGODlhCQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAJAAUAAAILjI8BuwfaHlQzoQIAOw%3D%3D"> '
+                            } else {
+                                mailText = "";				
+                            }
+                            mailRefreshCounter = 0;	
+                        } else {
+                            mailRefreshCounter++;
+                        }
+                    } // end if mailIconDisplay
+                    
+                    dateNtime(); 
+                    
+                } else if (currentScreen == 'tunesc') {
+                    getTunes();
+                    
+                } else if (currentScreen == 'mailsc') {
+                    mailCheck();
+                    
+                } else if (currentScreen == 'consolesc') {
+                    if (currentLog == "system") {
+                        var data = window.application.runUserScript('getSyslog'); 
+                        mainText = '<span class="buttonleft">' + data + '</span>';
+                    } else if (currentLog == "access") {
+                        if (osVersion == "10.4") {
+                            var data = window.application.runUserScript('getAcclog'); 
+                        } else { // Leopard
+                            var data = window.application.runUserScript('getLeoAcclog'); 
+                        }
+                        mainText = '<span class="buttonleft">' + data + '</span>';
+                    } else { // default to console log, use different code depending on OS version
+                        if (osVersion == "10.4") {
+                            var data = window.application.runUserScript('getConlog'); 
+                        } else { // Leopard
+                            var data = window.application.runUserScript('getLeoConlog'); 
+                        }
+                        mainText = '<span class="buttonleft">' + data + '</span>';
+                    }
+                    
+                } else if (currentScreen == 'growls') {
+                    if (logGrowl == "true") {
+                        // check growlLog is in bounds
+                        if (growlLog == growlArray.length) {
+                            growlLog = 0;
+                        }
+                        if (growlLog == -1) {
+                            growlLog = (growlArray.length -1);
+                        }
+                        var data = growlArray[growlLog];
+                        mainText = '<span class="buttonleft">' + data + '</span>';
+                    } else {
+                        mainText = '<span class="buttonleft">Growl logging is disabled in the prefs.<br>Growl should save a log at ~/Library/Scripts/growl.log</span>';
+                    }
+                } else if (currentScreen == 'systemsc') {
+                    
+                    if (subScreen == "hotapps") {
+                        if (refreshCounter > 9) {
+                            showHotAppsOverlay();
+                            refreshCounter = 0;
+                        } else {
+                            refreshCounter++;
+                        }
+                        
+                    } else if (subScreen == "uptime") {
+                        if (refreshCounter > 4) {
+                            showUptime();
+                            refreshCounter = 0;
+                        } else {
+                            refreshCounter++;
+                        }
+                        
+                    } else if (subScreen == "cpu") {
+                        if (alwaysLogSystem != "true") {
+                            if (sysLogCounter >= systemLogInterval) {
+                                logCPU();
+                                sysLogCounter = 0;
+                            } else {
+                                sysLogCounter++;
+                            }
+                        }
+                        mainText = '<img src=' + c1 + gap + c2 + gap + c3 + gap + c4 + gap + c5 + gap + c6 + gap + c7 + gap + c8 + gap + c9 + gap + c10 + gap + c11 + gap + c12 + gap + c13 + gap + c14 + gap + c15 + gap + c16 + gap + c17 + gap + c18 + gap + c19 + gap + c20 + gap + c21 + gap + c22 + gap + c23 + gap + c24 + gap + c25 + gap + c26 + gap + c27 + gap + c28 + gap + c29 + gap + c30 + gap + c31 + gap + c32 + gap + c33 + gap + c34 + gap + c35 + gap + c36 + gap + c37 + gap + c38 + gap + c39 + gap + c40 + gap + c41 + gap + c42 + gap + cChart + '/>' ;
+                    } else if (subScreen == "disks") {
+                        if (refreshCounter > messageDisplayTime) {
+                            var allDisks = tableData.length;
+                            // we can only fit 2 per page so rotate them
+                            var diskPages = Math.ceil(allDisks / 2);
+                            if ((d+1) >= allDisks) {
+                                mainText = tableData[d];
+                            } else {
+                                mainText = tableData[d] + tableData[d+1];
+                            }
+                            
+                            if (tableData.length > 2) {
+                                d = d +2;
+                                h++;
+                                if (h == diskPages) {
+                                    d = 0;
+                                    h = 0;
+                                }
+                            }
+                            refreshCounter = 0;
+                        } else {
+                            refreshCounter++;
+                        }
+                    }
+                    
+                }
+                
+                
+                
+                
+                
+                //	Display Overlay if there is a new version
+                
+                if ((latestVersion != "") && (codeVersion < latestVersion) && (versionCounter < versionDisplayTime)) {
+                    mainText = "You are running Version " + codeVersion + "<br> Version " + latestVersion + " of LCDMultiScreen is now available";
+                    currentControls = '<table width=160px><tr><td class="buttonleft">Download latest version</td></tr></table>';
+                    versionCounter ++;
+                } else if (versionCounter == versionDisplayTime) {
+                    currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                    versionCounter ++;
+                }
+                
+                
+                if ((logGrowl == "true") && (growlRefreshCounter >= growlUpdateFrequency) && (growlsWaiting == "false")) {
+                    checkGrowls();
+                    growlRefreshCounter = 0;
+                } else {
+                    growlRefreshCounter++;
+                }
+                
+                if ((logGrowl == "true") && (growlsWaiting == "true")) { // new growls to display
+                    if ((growlIndex == 0) || (growlClock > growlLinger)) { // first growl or last timeout has ended
+                        if (growlIndex < growlDisplay.length) {
+                            showOverlay(growlDisplay[growlIndex]);
+                            growlClock = 0;
+                        } else { // run out of new growls
+                            growlsWaiting = "false";
+                            growlDisplay = [];
+                        }
+                        growlIndex++;
+                    } else {
+                        growlClock++;
+                    }
+                }
+                
+                if(!window.application.updateDisplay()) stop(); 
+                
+            } // end update 
+            
+            function showOverlay(thisInfo) {
+                setText('memoOverlay', thisInfo); 
+                $('memoOverlay').style.display = 'block';
+                setTimeout("$('memoOverlay').style.display = 'none';", growlTimeout); 
+            }
+            
+            
+            
+            function checkGrowls() {
+                newGrowl = window.application.runUserScript('grabGrowl');
+                // has this changed?
+                
+                if (newGrowl != lastGrowl) {
+                    foundIt = "false";
+                    //get the last ten, drop them into an array, look for a match
+                    newGrowls = window.application.runSystemScript('getMoreGrowls');
+                    growlDump = newGrowls.split("=|=");
+                    for (g=0; g < 10; g++) {
+                        if (growlDump[g] == lastGrowl) {
+                            foundIt = "true";
+                            g++;
+                        }
+                        if (foundIt == "true") {
+                            if (alwaysDisplayGrowls == "true") { growlDisplay.push(growlDump[g]); } // copy to temp array for display
+                            growlArray.push(growlDump[g]); // save to main growl array
+                            growlTemp = growlDump[g]; // save the last growl for the next check.
+                        }
+                    }
+                    lastGrowl = growlTemp; // save current screen & switch to growl screen.
+                    if (alwaysDisplayGrowls == "true") {
+                        growlsWaiting = "true";
+                    }
+                    growlIndex = 0;
+                    growlClock = 0;
+                    
+                }
+            }
+            
+            
+            //================== BUTTON HANDLER FUNCTION ==================
+            function handleButton(button, upDown) { 
+                // button pushes
+                if (upDown == "down") return; 
+                
+                // set different values depending on the current screen
+                if (currentScreen == 'main') {
+                    //==================  SCREEN BUTTONS
+                    if ((latestVersion != "?") && (codeVersion != latestVersion) && (versionCounter < versionDisplayTime)) { 
+                        // I EDITED
+                        if (button == "Softkey1") {
+                            mainText = "iTunes";
+                            currentScreen = "tunesc";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                            application.runSystemScript('iTunesPlay'); 
+                        }
+                        if (button == "Softkey2") {
+                            mainText = "Mail";
+                            currentScreen = "mailsc";
+                            refreshCounter = 30;
+                            currentControls = '<table width=160px><tr><td class="buttonleft">get</td><td class="buttons">read</td><td class="buttonright">junk</td><td class="buttonright">feed</td></tr></table>';
+                        }
+                        if (button == "Softkey3") {
+                            mainText = "System Monitor";
+                            currentScreen = "systemsc";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">cpu</td><td class="buttons">hot apps</td><td class="buttonright">disks</td><td class="buttonright">uptime</td></tr></table>';
+                        }
+                        if (button == "Softkey4") {
+                            mainText = "Console";
+                            currentScreen = "consolesc";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">console</td><td class="buttons">system</td><td class="buttonright">access</td><td class="buttonright">growls</td></tr></table>';
+                        }
+                        if (button == "Display") {
+                            // to do : make this toggle the display
+                            mainText = "Main Screen";
+                            dateNtime();
+                            currentScreen = "main";
+                            currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                            var tehMessage = "LCDTool MultiScreen version " + codeVersion + "<br>Updated with automatic core counting, disk space bars & growl notifications.<br>Sei 2009";
+                            showOverlay(tehMessage);
+                            
+                        }
+                    }
+                    
+                } else if (currentScreen == 'tunesc') {
+                    //================== ITUNES SCREEN BUTTONS
+                    if (button == "Softkey1") {
+                        window.application.runUserScript('rateOne'); 
+                        mainText = "Current Track rated  *----<br> ";
+                        rating = window.application.runUserScript('getRating'); 
+                    }
+                    if (button == "Softkey2") {
+                        window.application.runUserScript('rateTwo'); 
+                        mainText = "Current Track rated  **---<br> ";
+                        rating = window.application.runUserScript('getRating'); 
+                    }
+                    if (button == "Softkey3") {
+                        window.application.runUserScript('rateThree'); 
+                        mainText = "Current Track rated ***--<br> ";
+                        rating = window.application.runUserScript('getRating'); 
+                    }
+                    if (button == "Softkey4") {
+                        if (rating == 80) {
+                            window.application.runUserScript('rateFive'); 
+                            mainText = "Current Track rated *****<br> ";
+                            rating = window.application.runUserScript('getRating');
+                        } else {
+                            window.application.runUserScript('rateFour'); 
+                            mainText = "Current Track rated ****-<br> ";
+                            rating = window.application.runUserScript('getRating');
+                        }
+                    }
+                    if (button == "Display") {
+                        mainText = "Date and Time<br>Weather Report";
+                        dateNtime();
+                        currentScreen = "main";
+                        currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                        $('progressbar').style.display = 'none';
+                        $('progress').style.display = 'none';
+                    }
+                    
+                } else if (currentScreen == 'mailsc') {
+                    //================== MAIL SCREEN BUTTONS
+                    if (button == "Softkey1") {
+                        mainText = "Getting new mail";
+                        window.application.runUserScript('getMail'); // to do : scroll message summaries
+                    }
+                    if (button == "Softkey2") {
+                        mainText = "opening current message"; // to do : open the currently scrolling message
+                        window.application.runUserScript('openMail'); 
+                    }
+                    if (button == "Softkey3") {
+                        mainText = "marking as junk<br>(not implemented yet)"; // to do : junk the currently scrolling message
+                    }
+                    if (button == "Softkey4") {
+                        mainText = "opening current feed<br>(not implemented yet)"; // to do : scroll rss feeds needs doing first
+                    }
+                    if (button == "Display") {
+                        mainText = "Date and Time<br>Weather Report";
+                        dateNtime();
+                        currentScreen = "main";
+                        currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                        $('scrollbox').style.display = 'none';
+                    }
+                    
+                } else if (currentScreen == 'systemsc') {
+                    //================== SYSTEM SCREEN BUTTONS
+                    if (button == "Softkey1") {
+                        subScreen = "cpu";
+                        currentControls = '<table width=160px><tr><td class="buttonleft"><span class="selected">cpu</span></td><td class="buttons">hot apps</td><td class="buttonright">disks</td><td class="buttonright">uptime</td></tr></table>';
+                    }
+                    if (button == "Softkey2") {
+                        mainText = "Top 3 Apps";
+                        subScreen = "hotapps";
+                        currentControls = '<table width=160px><tr><td class="buttonleft">cpu</td><td class="buttons"><span class="selected">hot apps</span></td><td class="buttonright">disks</td><td class="buttonright">uptime</td></tr></table>';
+                        showHotAppsOverlay();
+                    }
+                    if (button == "Softkey3") {
+                        mainText = "Checking Disk Space,<br> One moment please...";
+                        subScreen = "disks";
+                        currentControls = '<table width=160px><tr><td class="buttonleft">cpu</td><td class="buttons">hot apps</td><td class="buttonright"><span class="selected">disks</span></td><td class="buttonright">uptime</td></tr></table>';
+                        showFSOverlay(); // to do : formatting and memory usage
+                    }
+                    if (button == "Softkey4") {
+                        mainText = "One moment...<br />Data will refresh every 5 seconds";
+                        refreshCounter = 2;
+                        subScreen = "uptime";
+                        currentControls = '<table width=160px><tr><td class="buttonleft">cpu</td><td class="buttons">hot apps</td><td class="buttonright">disks</td><td class="buttonright"><span class="selected">uptime</span></td></tr></table>';
+                    }
+                    if (button == "Display") {
+                        mainText = "Date and Time<br>Weather Report";
+                        dateNtime();
+                        currentScreen = "main";
+                        currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                        if (alwaysLogSystem != "true") { // if we're not logging all the time we need to reset existing cpu data to zero
+                            c1 = c2 = c3 = c4 = c5 = c6 = c7 = c8 = c9 = c10 = c11 = c12 = c13 = c14 = c15 = c16 = c17 = c18 = c19 = c20 = c21 = c22 = c23 = c24 = c25 = c26 = c27 = c28 = c28 = c29 = c30 = c31 = c32 = c33 = c33 = c34 = c35 = c36 = c37 = c38 = c39 = c40 = c41 = c42 = emptyP;
+                        }
+                    }
+                    
+                } else if (currentScreen == 'consolesc') {
+                    //================== LOG SCREEN BUTTONS
+                    if (button == "Softkey1") {
+                        mainText = "Console log";
+                        currentLog = "console";
+                        currentControls = '<table width=160px><tr><td class="buttonleft"><span class="selected">console</span></td><td class="buttons">system</td><td class="buttonright">access</td><td class="buttonright">growl</td></tr></table>';
+                    }
+                    if (button == "Softkey2") {
+                        mainText = "System log";
+                        currentLog = "system";
+                        currentControls = '<table width=160px><tr><td class="buttonleft">console</td><td class="buttons"><span class="selected">system</span></td><td class="buttonright">access</td><td class="buttonright">growl</td></tr></table>';
+                    }
+                    if (button == "Softkey3") {
+                        mainText = "http access log";
+                        currentLog = "access";
+                        currentControls = '<table width=160px><tr><td class="buttonleft">console</td><td class="buttons">system</td><td class="buttonright"><span class="selected">access</span></td><td class="buttonright">growl</td></tr></table>';
+                    }
+                    if (button == "Softkey4") {
+                        mainText = "recent growls";
+                        //		currentLog = "growl";
+                        //		currentControls = '<table width=160px><tr><td class="buttonright"><span class="selected">next growl</span></td></tr></table>';
+                        //		currentControls = '<table width=160px><tr><td class="buttonleft">start</td><td class="buttonleft">previous</td><td class="buttonleft">next</td><td class="buttonright">end</td></tr></table>';
+                        //		currentScreen = "growls";
+                    }
+                    if (button == "Display") {
+                        mainText = "Date and Time<br>Weather Report";
+                        dateNtime();
+                        currentScreen = "main";
+                        currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                    }
+                    
+                } else if (currentScreen == 'growls') {
+                    //================== GROWL SCREEN BUTTONS
+                    if (button == "Softkey1") {
+                        growlLog = 0;
+                    }
+                    if (button == "Softkey2") {
+                        growlLog--;
+                    }
+                    if (button == "Softkey3") {
+                        growlLog++;
+                    }
+                    if (button == "Softkey4") {
+                        growlLog = growlArray.length -1;
+                    }
+                    if (button == "Display") {
+                        mainText = "Date and Time<br>Weather Report";
+                        dateNtime();
+                        currentScreen = "main";
+                        currentControls = '<table width=160px><tr><td class="buttonleft">iTunes</td><td class="buttons">Mail</td><td class="buttonright">System</td><td class="buttonright">Logs</td></tr></table>';
+                    }
+                } //end what screen
+            }  // end function handleButton
+            
+            //================== CURRENTLY UNUSED ==================
+            
+            
+            //================== MAIN SCREEN FUNCTIONS ==================
+            function dateNtime() {
+                // to do - break into separate functions, only run date once per day
+                var currentTime = new Date();
+                var month = currentTime.getMonth() + 1;
+                var day = currentTime.getDate();
+                var year = currentTime.getFullYear();
+                var hours = currentTime.getHours();
+                var minutes = currentTime.getMinutes();
+                var dayex;
+                
+                if (minutes < 10) {minutes = "0" + minutes};
+                
+                // make human friendly months
+                switch(month) {
+                    case  1:
+                    month = 'January';
+                    break
+                    case  2:
+                    month = 'February';
+                    break
+                    case  3:
+                    month = 'March';
+                    break
+                    case  4:
+                    month = 'April';
+                    break
+                    case  5:
+                    month = 'May';
+                    break
+                    case  6:
+                    month = 'June';
+                    break
+                    case  7:
+                    month = 'July';
+                    break
+                    case  8:
+                    month = 'August';
+                    break
+                    case  9:
+                    month = 'September';
+                    break
+                    case  10:
+                    month = 'October';
+                    break
+                    case  11:
+                    month = 'November';
+                    break
+                    case  12:
+                    month = 'December';
+                    break
+                }
+                
+                // human friendly days
+                if ((day == 1)|(day==21)|(day==31)) {
+                    dayex = "st";
+                } else if ((day == 2)|(day==22)) {
+                    dayex = "nd";
+                } else if ((day == 3)|(day==23)) {
+                    dayex = "rd";
+                } else {
+                    dayex = "th";
+                }
+                
+                if (mailIconDisplay == "true") {
+                    mainText = "<div id='mainbox'><div id='rightbox'>" + mailText + "</div><div id='leftbox'>" + day + dayex + " of " + month + " " + hours + ":" + minutes + "</div></div>" + "<div id='location'>" + window.application.runSystemScript('location') + "</div>" + window.application.runSystemScript('weatherInfo') ;
+                } else {
+                    mainText = "<div id='mainbox'><div id='leftbox'>" + day + dayex + " of " + month + " " + hours + ":" + minutes + "</div></div>" + weatherData;
+                }
+                
+            } // end of dateNtime
+            
+            
+            //================== ITUNES SCREEN FUNCTIONS ==================
+            function getTunes() {
+                // to do : add play pause and mute status icons
+                
+                //	var isplaying = window.application.runUserScript('getState');
+                
+                $('progressbar').style.display = 'block';
+                $('progress').style.display = 'block';
+                var itunesStatus = application.runSystemScript('iTunesCurrentTrackFullStatus'); 
+                itunesStatus = '(' + itunesStatus + ')'; 
+                var itunes = eval(itunesStatus); 
+                setText('pos', formatTime(itunes['position']));
+                setText('remaining', formatTime((itunes['duration'])-(itunes['position']))); 
+                var thisArtist = (itunes['artist']); 
+                thisArtist = thisArtist.replace(/\'/," ");
+                                                var thisTrack = (itunes['name']);
+                                                thisTrack = thisTrack.replace(/\'/," ");
+                                                                              
+                                                                              // has the track changed? if so refresh the rating
+                                                                              if (thisTrack != currentTrack) {
+                                                                              rating = window.application.runUserScript('getRating');
+                                                                              currentTrack = thisTrack
+                                                                              }
+                                                                              
+                                                                              // humanise ratings
+                                                                              if (rating == "100") { 
+                                                                              stars = "*****";
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              } else if (rating == "80") { 
+                                                                              // special case, switch 4 rating button to 5
+                                                                              stars = "****-";
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">*****</td></tr></table>';
+                                                                              } else if (rating == "60") { 
+                                                                              stars = "***--";
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              } else if (rating == "40") { 
+                                                                              stars = "**---";
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              } else if (rating == "20") { 
+                                                                              stars = "*----";
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              } else { 
+                                                                              stars = "unrated";
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              }
+                                                                              
+                                                                              /* storing the indicator icons here till they are implemented:
+                                                                               <img id="mail" src="data:image/gif;base64,R0lGODlhCQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAJAAUAAAILjI8BuwfaHlQzoQIAOw%3D%3D" /><img id="mute" src="data:image/gif;base64,R0lGODlhBQAFAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAAFAAUAAAIIDB4GaZ2oVgEAOw%3D%3D" /><img id="pause" src="data:image/gif;base64,R0lGODlhBQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAFAAUAAAIHTGCGuZpnCgA7" /><img id="play" src="data:image/gif;base64,R0lGODlhBQAFAIAAAAAAAP%2F%2F%2FyH5BAAAAAAALAAAAAAFAAUAAAIIDIJ2CM1rUgEAOw%3D%3D" /> */
+                                                                              
+                                                                              mainText = thisArtist + '<span class="right"> [' + stars + "]</span>" + "<br>" + thisTrack;
+                                                                              $('diamond').style.left = ((Math.floor(90 / itunes['duration'] * itunes['position']))+34) + 'px'; 
+                                                                              }
+                                                                              
+                                                                              //================== MAIL SCREEN FUNCTIONS ==================
+                                                                              
+                                                                              // MAIL SCREEN SCRIPT
+                                                                              // to do : have this update every 10? minutes, run all the time, pop mail icon up on iTunes and home screens to indicate new mail. - half done.
+                                                                              function mailCheck() { 
+                                                                              $('scrollbox').style.display = 'block';
+                                                                              
+                                                                              newMessageCount = window.application.runUserScript('checkMail'); 
+                                                                              
+                                                                              // has # messages changed?
+                                                                              if (newMessageCount != unreadMessageCount) {
+                                                                              var data;
+                                                                              if (newMessageCount == '0') {
+                                                                              data = 'No new messages';
+                                                                              } else if (newMessageCount == '1') {
+                                                                              data = '1 unread message';
+                                                                              } else {
+                                                                              data = newMessageCount + ' unread messages';
+                                                                              }
+                                                                              mainText = '<img id="mail" src="data:image/gif;base64,R0lGODlhCQAFAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAJAAUAAAILjI8BuwfaHlQzoQIAOw%3D%3D" /> ' + data;
+                                                                              
+                                                                              unreadMessageCount = newMessageCount;
+                                                                              currentMessage = 0;
+                                                                              currentDisplayTime = 0;
+                                                                              getNewMessages();
+                                                                              } else {
+                                                                              if (newMessageCount == '0') {
+                                                                              setText('scrollMessage', ' '); 
+                                                                              } else {
+                                                                              displayMail();
+                                                                              }
+                                                                              }
+                                                                              if (mainText == "Mail") {
+                                                                              unreadMessageCount = 0;
+                                                                              }
+                                                                              } 
+                                                                              
+                                                                              
+                                                                              function getNewMessages() {
+                                                                              var maildata = window.application.runSystemScript('getMessages');
+                                                                              unreadMail = maildata.split("-*-");
+                                                                              displayMail();
+                                                                              }
+                                                                              
+                                                                              
+                                                                              function displayMail() {
+                                                                              // runs every second while unread mail
+                                                                              
+                                                                              if (currentDisplayTime >= messageDisplayTime) {
+                                                                              currentDisplayTime = 0;
+                                                                              if (currentMessage >= (newMessageCount-1)) {
+                                                                              currentMessage = 0;
+                                                                              } else {
+                                                                              currentMessage++;
+                                                                              }
+                                                                              
+                                                                              } else {
+                                                                              currentDisplayTime++;
+                                                                              }
+                                                                              setText('scrollMessage', unreadMail[currentMessage]);
+                                                                              }
+                                                                              
+                                                                              
+                                                                              
+                                                                              //================== SYSTEM SCREEN FUNCTIONS ==================
+                                                                              
+                                                                              // CPU CHART SCRIPT
+                                                                              function logCPU() { 
+                                                                              var data = window.application.runSystemScript('getCPU');
+                                                                              data = data / coreCount;
+                                                                              if (data <= 5) { data = fiveP ;
+                                                                              } else if (data <= 10) { data = tenP ;
+                                                                              } else if (data <= 15) { data = fifteenP ;
+                                                                              } else if (data <= 20) { data = twentyP ;
+                                                                              } else if (data <= 25) { data = twentyfiveP ;
+                                                                              } else if (data <= 30) { data = thirtyP ;
+                                                                              } else if (data <= 35) { data = thirtyfiveP ;
+                                                                              } else if (data <= 40) { data = fourtyP ;
+                                                                              } else if (data <= 45) { data = fourtyfiveP ;
+                                                                              } else if (data <= 50) { data = fivtyP ;
+                                                                              } else if (data <= 55) { data = fivtyfiveP ;
+                                                                              } else if (data <= 60) { data = sixtyP ;
+                                                                              } else if (data <= 65) { data = sixtyfiveP ;
+                                                                              } else if (data <= 70) { data = seventyP ;
+                                                                              } else if (data <= 75) { data = seventyfiveP ;
+                                                                              } else if (data <= 80) { data = eightyP ;
+                                                                              } else if (data <= 85) { data = eightyfiveP ;
+                                                                              } else if (data <= 90) { data = ninetyP ;
+                                                                              } else if (data <= 95) { data = ninetyfiveP ;
+                                                                              } else  { data = hundredP ;
+                                                                              }
+                                                                              
+                                                                              c1 = c2; c2 = c3; c3 = c4; c4 = c5; c5=c6; c6=c7; c7=c8; c8=c9; c9=c10; c10=c11; c11=c12; c12=c13; c13=c14; c14=c15; c15=c16; c16=c17, c17=c18; c18=c19; c19=c20; c20=c21; c21=c22; c22=c23; c23=c24; c24=c25; c25=c26; c26=c27; c27=c28; c28=c29; c29= c30; c30=c31; c31=c32; c32=c33; c33=c34; c34=c35; c35=c36; c36=c37; c37=c38; c38=c39; c39=c40; c40=c41; c41=c42;
+                                                                              c42 =  data;
+                                                                              } 
+                                                                              
+                                                                              
+                                                                              // HOT APPS SCRIPT
+                                                                              function showHotAppsOverlay() { 
+                                                                              var data = window.application.runUserScript('hotApps'); 
+                                                                              var dataArray = data.split("\r");
+                                                                              var firstPart = dataArray[0].split(".");
+                                                                              var fpAdjusted = (firstPart[0] / coreCount);
+                                                                              var firstProcess = firstPart[1].substring(2);
+                                                                              var LineOne = Math.round(fpAdjusted) + "% " + firstProcess;
+                                                                              
+                                                                              var firstPart = dataArray[1].split(".");
+                                                                              var fpAdjusted = (firstPart[0] / coreCount);
+                                                                              var firstProcess = firstPart[1].substring(2);
+                                                                              var LineTwo = Math.round(fpAdjusted) + "% " + firstProcess;
+                                                                              
+                                                                              var firstPart = dataArray[2].split(".");
+                                                                              var fpAdjusted = (firstPart[0] / coreCount);
+                                                                              var firstProcess = firstPart[1].substring(2);
+                                                                              var LineThree = Math.round(fpAdjusted) + "% " + firstProcess;
+                                                                              
+                                                                              data = LineOne + "<br>" + LineTwo + "<br>" + LineThree;
+                                                                              
+                                                                              //data = data.replace( new RegExp( "\\r", "g" ), "<br />" ); 
+                                                                              mainText = data;
+                                                                              } 
+                                                                              
+                                                                              // DISKS SCREEN SCRIPT
+                                                                              function showFSOverlay() { 
+                                                                              var data = window.application.runUserScript('getFS'); 
+                                                                              data = data.replace( new RegExp( "/dev/", "g" ), "" );
+                                                                              data = data.replace( new RegExp( "/Volumes/", "g" ), "" );
+                                                                              data = data.replace( new RegExp( "/", "g" ), "Startup" );
+                                                                              
+                                                                              tableData = [];
+                                                                              
+                                                                              var diskItems = data.split("\r");
+                                                                              var totalDisks = diskItems.length;
+                                                                              var diskPercent = [];
+                                                                              var howlong = "";
+                                                                              var startpos = "";
+                                                                              var thisPercent = "";
+                                                                              var i=0;
+                                                                              var y = "";
+                                                                              for (i=0; i< totalDisks; i++) {
+                                                                              diskPercent = [];
+                                                                              diskPercent = diskItems[i].split("%");
+                                                                              howlong = diskPercent[0].length;
+                                                                              startpos = howlong - 2;
+                                                                              thisPercent = diskPercent[0].substring(startpos);
+                                                                              // trim diskname to 10 chars
+                                                                              var trimmed = diskPercent[1].replace(/^\s+|\s+$/g, '') ;
+                                                                              var diskName = trimmed.substring(0,10);
+                                                                              y = "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"150\"><tr><td BGCOLOR=black width =\"" + thisPercent + "\" height =\"6\"></td><td style=\"border:solid 1px\"></td><td align=\"right\" width=\"50\" style=\"font-family: FrucadeSmall; font-size:8px\">" + diskName + "</td></tr></table></br>";
+                                                                              tableData.push(y);
+                                                                              }
+                                                                              
+                                                                              //tableData = tableData + "</table>";
+                                                                              
+                                                                              //data = diskPercent[1];
+                                                                              
+                                                                              //data = data.replace( new RegExp( "\\r", "g" ), "<br />" );
+                                                                              //mainText = '<span class="buttonleft">' + data + '</span>';
+                                                                              //mainText = tableData[1];
+                                                                              } 
+                                                                              
+                                                                              // UPTIME SCREEN SCRIPT
+                                                                              function showUptime() { 
+                                                                              var data = window.application.runSystemScript('checkLoads');
+                                                                              mainText = data;
+                                                                              } 
+                                                                              
+                                                                              
+                                                                              //================== REGISTER EXTERNAL SCRIPTS ==================
+                                                                              
+                                                                              function init() {
+                                                                              // main scripts
+                                                                              window.application.registerUserScript('getNewVersion', 'open location "http://darndog.no-ip.com/LCDToolMultiScreen.zip"');
+                                                                              
+                                                                              // itunes scripts
+                                                                              window.application.registerUserScript('iTunesActivate', 'tell application "iTunes" to activate');
+                                                                              window.application.registerUserScript('getRating', 'tell application "iTunes"  to set thisRating to the rating of the current track');
+                                                                              window.application.registerUserScript('rateOne', 'tell application "iTunes"  to set rating of current track to 20');
+                                                                              window.application.registerUserScript('rateTwo', 'tell application "iTunes"  to set rating of current track to 40');
+                                                                              window.application.registerUserScript('rateThree', 'tell application "iTunes"  to set rating of current track to 60');
+                                                                              window.application.registerUserScript('rateFour', 'tell application "iTunes"  to set rating of current track to 80');
+                                                                              window.application.registerUserScript('rateFive', 'tell application "iTunes"  to set rating of current track to 100');
+                                                                              
+                                                                              // mail scripts
+                                                                              window.application.registerUserScript('checkMail', 'tell application "Mail" to set unread to unread count of inbox as string');
+                                                                              window.application.registerUserScript('getMail', 'tell application "Mail" to check for new mail'); 
+                                                                              window.application.registerUserScript('openMail', 'tell application "Mail" to activate');
+                                                                              
+                                                                              // system scripts
+                                                                              window.application.registerUserScript('hotApps', 'do shell script "ps -crx -o %cpu,command | head -n 4 | tail -n 3"'); 
+                                                                              window.application.registerUserScript('getUptime', 'do shell script "uptime"'); 
+                                                                              window.application.registerUserScript('getFS', 'do shell script "df -hT hfs | tail +2"'); 
+                                                                              window.application.registerUserScript('checkCores', 'do shell script "sysctl hw.ncpu"');
+                                                                              window.application.registerUserScript('grabGrowl', 'do shell script "tail -1 ~/Library/Scripts/growl.log"'); 
+                                                                              //	window.application.registerUserScript('grabMoreGrowls', 'do shell script "tail -10 ~/Library/Scripts/growl.log"');
+                                                                              
+                                                                              // console scripts 
+                                                                              window.application.registerUserScript('getConlog', 'do shell script "cat /Library/Logs/Console/501/console.log | tail -n1"'); 
+                                                                              window.application.registerUserScript('getLeoConlog', 'do shell script "syslog -C | tail -n1"'); 
+                                                                              window.application.registerUserScript('getSyslog', 'do shell script "cat /var/log/system.log | tail -n1"'); 
+                                                                              window.application.registerUserScript('getAcclog', 'do shell script "cat /var/log/httpd/access_log | tail -n1"'); 
+                                                                              window.application.registerUserScript('getLeoAcclog', 'do shell script "cat /var/log/apache2/access_log | tail -n1"'); 
+                                                                              window.application.registerUserScript('getErrlog', 'do shell script "cat /var/log/httpd/error_log | tail -n1"'); 
+                                                                              
+                                                                              start(); 
+                                                                              }  // end init
+                                                                              
+                                                                              function start() { 
+                                                                              timer = setInterval("update()", mainUpdateMiliseconds); 
+                                                                              } 
+                                                                              
+                                                                              
+                                                                              function stop() { 
+                                                                              clearInterval(timer); 
+                                                                              } 
+                                                                              
+                                                                              
+                                                                              
+            </script> 
+        <style type="text/css"> 
+            /* to do : sort this mess */
+            #top {overflow: hidden; margin-left: 1px; margin-top: 1px; font-family: FrucadeSmall; font-size:8px; text-align: left;} 
+            #controls {position: fixed; top: 31; left:0 overflow: hidden; height: 8px; margin-top: 0px; font-family: FrucadeSmall; font-size:8px; }
+            #mainbox {};
+            .memo {color: #FFF; background-color: #000; padding: 2px; font-family: FrucadeSmall; font-size: 8px;} 
+            #leftbox {font-family: FrucadeSmall; font-size:8px; text-align: left;}
+            #rightbox {float:right; font-family: FrucadeSmall; font-size:8px; text-align: right;}
+            .buttons {font-family: FrucadeSmall; font-size:8px; text-align: center;}
+            .buttonleft {font-family: FrucadeSmall; font-size:8px; text-align: left;}
+            .buttonright {font-family: FrucadeSmall; font-size:8px; text-align: right;}
+            .right { float: right;}
+            .selected { text-decoration: none; color: #FFF; background-color: #000; }
+            .growler { font-family: Monaco; font-size:14px }
+            #progressbar {width: 156; height: 12; margin:0px 0px 0px 0px; padding: 0px; font-family: FrucadeSmall; font-size:8px; display: none; overflow: hidden;} 
+            #scrollbox {font-family: FrucadeSmall; font-size:8px; display: none; overflow: hidden;}
+            #track {margin-left:1px;} 
+            #time {width: 156px; font-family: FrucadeSmall; font-size:8px; text-align: left;} 
+            #progress {width: 90px; height: 3px; margin:0px 0px 0px 0px; border: 1px solid black; display: none; overflow: hidden;} 
+            #diamond {position: absolute; z-index: -1; margin-left: -3px;} 
+            
+            </style> 
+        <link rel="stylesheet" href="css/default.css" /> 
+    </head> 
+    
+    <body class="border" onload="init();">
+        <div id="top"><span id="artist"></span></div>
+        <div id="progressbar"><table id="time"><tr><td id="pos" class="buttons" width="23"></td><td><div id="progress"><img id="diamond" src="data:image/gif;base64,R0lGODlhBQADAIAAAP%2F%2F%2FwAAACH5BAAAAAAALAAAAAAFAAMAAAIFBGIXuF0AOw%3D%3D" /></div></td><td id="remaining" class="buttons" width="23"></td></tr></table></div>
+        <div id="scrollbox"><span id="scrollMessage"></span></div>
+        <div id="controls"><span id="controls"></span></div>
+    </body> 
+</html>

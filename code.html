@@ -356,7 +356,7 @@
                         if (button == "Softkey1") {
                             mainText = "iTunes";
                             currentScreen = "tunesc";
-                            currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                            currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
                             application.runSystemScript('iTunesPlay'); 
                         }
                         if (button == "Softkey2") {
@@ -390,13 +390,13 @@
                 } else if (currentScreen == 'tunesc') {
                     //================== ITUNES SCREEN BUTTONS
                     if (button == "Softkey1") {
-                        window.application.runUserScript('rateOne'); 
-                        mainText = "Current Track rated  *----<br> ";
+                        window.application.runUserScript('shuffleOn'); 
+                        mainText = "iTunes is now shuffling<br><br> ";
                         rating = window.application.runUserScript('getRating'); 
                     }
                     if (button == "Softkey2") {
-                        window.application.runUserScript('rateTwo'); 
-                        mainText = "Current Track rated  **---<br> ";
+                        window.application.runUserScript('shuffleOff'); 
+                        mainText = "iTunes has stopped shuffling<br><br> ";
                         rating = window.application.runUserScript('getRating'); 
                     }
                     if (button == "Softkey3") {
@@ -639,23 +639,23 @@
                                                                               // humanise ratings
                                                                               if (rating == "100") { 
                                                                               stars = "*****";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
                                                                               } else if (rating == "80") { 
                                                                               // special case, switch 4 rating button to 5
                                                                               stars = "****-";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">*****</td></tr></table>';
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">*****</td></tr></table>';
                                                                               } else if (rating == "60") { 
                                                                               stars = "***--";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
                                                                               } else if (rating == "40") { 
                                                                               stars = "**---";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
                                                                               } else if (rating == "20") { 
                                                                               stars = "*----";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
                                                                               } else { 
                                                                               stars = "unrated";
-                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">*----</td><td class="buttons">**---</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
+                                                                              currentControls = '<table width=160px><tr><td class="buttonleft">Shuffle On</td><td class="buttons">Shuffle Off</td><td class="buttonright">***--</td><td class="buttonright">****-</td></tr></table>';
                                                                               }
                                                                               
                                                                               /* storing the indicator icons here till they are implemented:
@@ -842,8 +842,8 @@
                                                                               // itunes scripts
                                                                               window.application.registerUserScript('iTunesActivate', 'tell application "iTunes" to activate');
                                                                               window.application.registerUserScript('getRating', 'tell application "iTunes"  to set thisRating to the rating of the current track');
-                                                                              window.application.registerUserScript('rateOne', 'tell application "iTunes"  to set rating of current track to 20');
-                                                                              window.application.registerUserScript('rateTwo', 'tell application "iTunes"  to set rating of current track to 40');
+                                                                              window.application.registerUserScript('shuffleOn', 'tell application "iTunes"  to set shuffle of current playlist to true');
+                                                                              window.application.registerUserScript('shuffleOff', 'tell application "iTunes"  to set shuffle of current playlist to false');
                                                                               window.application.registerUserScript('rateThree', 'tell application "iTunes"  to set rating of current track to 60');
                                                                               window.application.registerUserScript('rateFour', 'tell application "iTunes"  to set rating of current track to 80');
                                                                               window.application.registerUserScript('rateFive', 'tell application "iTunes"  to set rating of current track to 100');

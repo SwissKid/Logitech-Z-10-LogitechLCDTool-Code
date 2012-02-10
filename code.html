@@ -407,7 +407,7 @@
                     }
                     if (button == "Softkey2") {
                         //                        TO DO -- Install functionality to repeat one
-                        if (repeaty == "krp1" ){
+                        if (repeaty == "kall" ){
                             window.application.runUserScript('repeatoff');
                             mainText = "iTunes is no longer repeating<br><br>";
                         }
@@ -639,7 +639,7 @@
                 $('progressbar').style.display = 'block';
                 $('progress').style.display = 'block';
                 var itunesStatus = application.runSystemScript('iTunesCurrentTrackFullStatus'); 
-                itunesStatus = '(' + itunesStatus + ')'; 
+                itunesStatus = '(' + itunesStatus + ')'; 		
                 var itunes = eval(itunesStatus); 
                 setText('pos', formatTime(itunes['position']));
                 setText('remaining', formatTime((itunes['duration'])-(itunes['position']))); 
@@ -673,9 +673,9 @@
                                                 var thisTrack = (itunes['name']);
                                                 thisTrack = thisTrack.replace(/\'/," ");
                                                                               //Scrolling trackname
-                                                                              if ( thisTrack.length > 30 ){
+                                                                              if ( thisTrack.length > 25 ){
                                                                                 if ( scrolltime <= 5 ){
-                                                                                    Trackname = thisTrack.substring(0,24) + "...";
+                                                                                    Trackname = thisTrack.substring(0,21) + "...";
                                                                                     scrolltime = scrolltime + 1;
                                                                               }else if ( scrolltime == thisTrack.length-15 ) {
                                                                               scrolltime = 0;
@@ -688,10 +688,10 @@
                                                                               }
                                                                              
                                                                               //scrolling artist
-                                                                              if ( thisArtist.length > 30 ){
+                                                                              if ( thisArtist.length > 25 ){
                                                                               if ( scroll2time <= 5 ){
-                                                                              Artistname = thisArtist.substring(0,24) + "...";
-                                                                              scroll2time = scroll2time + 1;
+                                                                              Artistname = thisArtist.substring(0,21) + "...";
+                                                                              scroll2time++
                                                                               }else if ( scroll2time == thisArtist.length-15 ) {
                                                                               scroll2time = 0;
                                                                               }                                                                            else {
